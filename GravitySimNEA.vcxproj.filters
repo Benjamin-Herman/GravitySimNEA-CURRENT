@@ -48,5 +48,7 @@
   <ItemGroup>
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
+    <None Include="shaders\starShader.frag" />
+    <None Include="shaders\starShader.vert" />
   </ItemGroup>
 </Project>
