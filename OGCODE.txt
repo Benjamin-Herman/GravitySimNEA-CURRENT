@@ -1,0 +1,199 @@
+#define GLM_ENABLE_EXPERIMENTAL
+#include <iostream> //basic allows for input output in termincal and basic keywords
+#include <glad/glad.h> // helper file for glfw
+#include <GLFW/glfw3.h> //windows os window backend
+#include <glm/glm.hpp> //this plus the next 3 are all for maths functions
+#include <glm/gtc/constants.hpp>
+#include <glm/gtx/norm.hpp>
+#include <cmath> 
+#include <vector> //allows for easy to use dynamic lists
+
+unsigned int width = 800; //sets window size x and y
+unsigned int height = 600;
+
+float centreX = width / 2.0f; //calculates the centre position on the screen
+float centreY = height / 2.0f;
+const float PI = glm::pi<float>(); //const PI for circles
+const float gravity = 980.0f; //const for gravity in this case being earth for testing
+const float bounceFactor = -0.95f; //const for energy efficientcy of bounces
+
+struct circleData { // a data type for the balls to access easier
+    glm::vec2 position; //position in screen
+    float radius; //the size - for calculations of collisions
+};
+
+class Circle {
+public:
+    glm::vec2 position; //current screen position
+    glm::vec2 velocity; //current velocity
+    float radius; //size
+    int resolution; //how many sides polygon it is - higher = better circle
+    glm::vec3 color; //the current colour of the ball
+
+    Circle(int pos_x = 0, int pos_y = 0, float rad = 50, int res = 100, glm::vec2 vel = { 1, 1 }) {
+        //initialisation functions for circle. 
+        //takes start position, size, resoliution, starting velocity
+        if (pos_x == 0 && pos_y == 0) { //if unset, place in centre of screen
+            pos_x = centreX;
+            pos_y = centreY;
+        }
+        velocity = vel; //standard local global variable setters
+        resolution = res;
+        radius = rad;
+        position = { pos_x, pos_y };
+        color = glm::vec3(1.0f, 0.5f, 0.2f); //start with orange colour
+    }
+
+    void draw(float time) {
+        // Color shifts with time for each circle
+        color.r = 0.5f + 0.5f * sin(time + position.x * 0.01f);
+        color.g = 0.5f + 0.5f * sin(time + position.y * 0.01f + 2.0f);
+        color.b = 0.5f + 0.5f * sin(time + position.x * 0.01f + 4.0f);
+
+        glColor3f(color.r, color.g, color.b); //sets glfw colour
+        glBegin(GL_TRIANGLE_FAN); //glfw draw circle from triangles
+        glVertex2f(position.x, position.y); //glfw vertexes
+        for (int i = 0; i <= resolution; i++) { //for loop to draw circle
+            float angle = 2.0f * PI * i / resolution; // gets angle. fancy stuff
+            float x = position.x + cos(angle) * radius; //more maths to find vertex of triangels
+            float y = position.y + sin(angle) * radius;
+            glVertex2f(x, y);
+        }
+        glEnd();
+    }
+
+    void checkCollisions(std::vector<Circle>& allCircles) {
+        //every part of this is repetitve. 
+        //if passes through screen boundtry -> reverse respective velocity and remove some energy constant
+        if (position.y - radius <= 0.0f) {
+            position.y = radius;
+            velocity.y *= bounceFactor;
+        }
+        else if (position.y + radius >= height) {
+            position.y = height - radius;
+            velocity.y *= bounceFactor;
+        }
+
+        if (position.x - radius <= 0.0f) {
+            position.x = radius;
+            velocity.x *= bounceFactor;
+        }
+        else if (position.x + radius >= width) {
+            position.x = width - radius;
+            velocity.x *= bounceFactor;
+        }
+
+        resolveCircleCollisions(allCircles); //now handle the collisions between 2 or more circles
+    }
+
+    void resolveCircleCollisions(std::vector<Circle>& allCircles) {
+        for (Circle& other : allCircles) { //loops all circles. not efficient at all
+            if (&other == this) continue;
+            //in short. this uses oblique collisions to determine the input output velocities
+            //uses newtons law of restitution, conservation of linear momentum and some cosine rules
+            //checks if they collide with if their max distance + centre overalps with another
+            glm::vec2 delta = position - other.position;
+            float distSquared = glm::length2(delta);
+            float minDist = radius + other.radius;
+
+            if (distSquared < minDist * minDist) {
+                float dist = sqrt(distSquared);
+                if (dist == 0.0f) dist = 0.01f;
+
+                glm::vec2 normal = delta / dist;
+                float penetration = minDist - dist;
+
+                position += 0.5f * normal * penetration;
+                other.position -= 0.5f * normal * penetration;
+
+                glm::vec2 relativeVelocity = velocity - other.velocity;
+                float velocityAlongNormal = glm::dot(relativeVelocity, normal);
+
+                if (velocityAlongNormal > 0) continue;
+
+                float impulseStrength = -(1.0f + 0.95f) * velocityAlongNormal / 2.0f;
+                glm::vec2 impulse = impulseStrength * normal;
+
+                velocity += impulse;
+                other.velocity -= impulse;
+            }
+        }
+    }
+
+    void update(float dt, float time, std::vector<Circle>& allCircles) { //calls every frame
+        velocity.y -= gravity * dt; // gravity effect
+        position += velocity * dt; //changes position on velocity
+        checkCollisions(allCircles);
+        draw(time); //calls the draw functions
+    }
+};
+
+std::vector<Circle> circles;
+
+float getDeltaTime() {
+    //takes time of last frame and now. gets time of frame. divides by a second to get frames per second. 
+    static float lastTime = glfwGetTime();
+    float currentTime = glfwGetTime();
+    float dt = currentTime - lastTime;
+    lastTime = currentTime;
+    return dt;
+}
+
+int main() {
+    if (!glfwInit()) { //if window fail, throw error :)
+        std::cerr << "Failed to init GLFW\n";
+        return -1;
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //telling graphics card what version of openGL we are using
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+
+    GLFWwindow* window = glfwCreateWindow(width, height, "Gravity Simulator", nullptr, nullptr);
+    //creates a window
+    if (!window) { //error message if fails
+        std::cerr << "Failed to create window\n";
+        glfwTerminate();
+        return -1;
+    }
+
+    glfwMakeContextCurrent(window); //initialise GLAD and make window exist
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { //fail message
+        std::cerr << "Failed to initialize GLAD\n";
+        return -1;
+    }
+
+    glViewport(0, 0, width, height); //bunch of stuff for openGL to say ah yes we working now
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width, 0, height, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // Add some circles
+    circles.emplace_back(200, 500, 45, 100, glm::vec2{ 100, -300 }); //initialises some circles
+    circles.emplace_back(500, 550, 35, 100, glm::vec2{ -150, -100 });
+    circles.emplace_back(400, 300, 50, 100, glm::vec2{ 0, 0 });
+
+    while (!glfwWindowShouldClose(window)) {
+        //this is the main loop
+        //some maths stuff here
+        float dt = getDeltaTime();
+        float time = glfwGetTime();
+
+        glClear(GL_COLOR_BUFFER_BIT); //clear buffers
+        glLoadIdentity();
+
+        for (auto& circle : circles) { //updates all circlres
+            circle.update(dt, time, circles);
+        }
+
+        glfwSwapBuffers(window); //swap current window with new drawn one
+        glfwPollEvents(); //check inputs
+    }
+
+    glfwTerminate();
+    return 0;
+}
