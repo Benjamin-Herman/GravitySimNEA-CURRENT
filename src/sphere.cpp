@@ -1,19 +1,22 @@
 #include "../headers/sphere.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp> // Add this for transformation functions
+#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 #include <iostream>
 
 Sphere::Sphere(float radius, int sectors, int stacks)
-    : radius(radius), sectorCount(sectors), stackCount(stacks),
-    position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
+    : radius(radius), sectorCount(sectors), stackCount(stacks){ //init the sphere to do its thing
+    position = glm::vec3(1.0f, 1.0f, 1.0f);
+    rotationAngle = 0.0f;
+    vertices.clear(); //these two lines are vital as otherwise the shapers merge weirdy. some cross over data thing
+    indices.clear();
     BuildVertices();
     SetupMesh();
 }
 
 void Sphere::Update(float deltaTime) {
-    rotationAngle += 30.0f * deltaTime; // Rotate slower than cube
+    rotationAngle += 30.0f * deltaTime; //rotate by angle and dt
     if (rotationAngle > 360.0f) {
         rotationAngle -= 360.0f;
     }
@@ -21,15 +24,15 @@ void Sphere::Update(float deltaTime) {
 
 glm::mat4 Sphere::GetModelMatrix() const {
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
+    model = glm::translate(model, position); //bunch of GLM maths stuff with pos and rot vectors
     model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 1.0f, 0.0f));
     return model;
 }
 
-void Sphere::BuildVertices() {
-    const float PI = acos(-1.0f);
+void Sphere::BuildVertices() { // because sphere it needs special treatment and therefore Pi
+    const float PI = acos(-1.0f); //clever way of getting pi but more cpu intensive but eh
 
-    float x, y, z, xy;
+    float x, y, z, xy; //init some variables
     float nx, ny, nz, lengthInv = 1.0f / radius;
     float s, t;
 
@@ -37,7 +40,7 @@ void Sphere::BuildVertices() {
     float stackStep = PI / stackCount;
     float sectorAngle, stackAngle;
 
-    for (int i = 0; i <= stackCount; ++i) {
+    for (int i = 0; i <= stackCount; ++i) { //magic maths stuff that openGL docs told me to do
         stackAngle = PI / 2 - i * stackStep;
         xy = radius * cosf(stackAngle);
         z = radius * sinf(stackAngle);
@@ -45,33 +48,33 @@ void Sphere::BuildVertices() {
         for (int j = 0; j <= sectorCount; ++j) {
             sectorAngle = j * sectorStep;
 
-            // Vertex position
+            // vertex pos
             x = xy * cosf(sectorAngle);
             y = xy * sinf(sectorAngle);
 
-            // Normalized normal
+            // normalised normal, what a werid name
             nx = x * lengthInv;
             ny = y * lengthInv;
             nz = z * lengthInv;
 
-            // Vertex tex coord (s, t)
+            // vertex tex coord s and t
             s = (float)j / sectorCount;
             t = (float)i / stackCount;
 
-            // Add vertex attributes
+            // add vertex attributes
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
 
-            // Color (based on normal for nice effect)
+            // colour - based on normal for nice effect
             vertices.push_back((nx + 1.0f) * 0.5f);
             vertices.push_back((ny + 1.0f) * 0.5f);
             vertices.push_back((nz + 1.0f) * 0.5f);
         }
     }
 
-    // Generate indices
-    for (int i = 0; i < stackCount; ++i) {
+    // generate indices
+    for (int i = 0; i < stackCount; ++i) { //more magic maths that openGL docs tell me to do. 
         int k1 = i * (sectorCount + 1);
         int k2 = k1 + sectorCount + 1;
 
@@ -92,23 +95,23 @@ void Sphere::BuildVertices() {
 }
 
 void Sphere::SetupMesh() {
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1, &VAO); //vertex array and buffer objects, and element buffer object
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
-
+    //this is all memeory management and storing data for the grpahics card
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-    // Position attribute
+    // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Color attribute
+    // color attribute assign in memory by bit and byte size. the numbers are defo important. 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -116,7 +119,7 @@ void Sphere::SetupMesh() {
 }
 
 void Sphere::Render() {
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO); //vertex array object. tell openGL to draw that stuff
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

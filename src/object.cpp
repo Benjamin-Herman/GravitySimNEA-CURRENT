@@ -1,9 +1,9 @@
-#include "../headers/cube.h"
+#include "../headers/Object.h"
 #include <glad/glad.h>
 
-/*Cube::Cube() : position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
-    // Cube vertices with colors (8 vertices, each with 3 position + 3 color)
-    // cube verts with colours. 8 verts. 3 pos and 3 colour
+Object::Object() : position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
+    // Object vertices with colors (8 vertices, each with 3 position + 3 color)
+    // Object verts with colours. 8 verts. 3 pos and 3 colour
     vertices = {
         // positions          // colours
         -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
@@ -16,7 +16,7 @@
         -0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f
     }; // a list of all verticies
 
-    // cube indices list. if not like this then memory is wasted :(
+    // Object indices list. if not like this then memory is wasted :(
     indices = {
         0, 1, 2, 2, 3, 0, // front
         1, 5, 6, 6, 2, 1, // right
@@ -29,21 +29,21 @@
     SetupMesh();
 }
 
-void Cube::Update(float deltaTime) {
-    rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the cube by a certain amount by dt
+void Object::Update(float deltaTime) {
+    rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
     if (rotationAngle > 360.0f) {
         rotationAngle -= 360.0f;
     }
 }
 
-glm::mat4 Cube::GetModelMatrix() const {
+glm::mat4 Object::GetModelMatrix() const {
     glm::mat4 model = glm::mat4(1.0f); //init matrix 4 dimentional. makes rotation and movement calc easy
     model = glm::translate(model, position); // calls function to change matrix
     model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.5f, 1.0f, 0.0f)); //same stuff but rotate
     return model;
 }
 
-void Cube::SetupMesh() {
+void Object::SetupMesh() {
     glGenVertexArrays(1, &VAO); //vertex array and buffer objects, and element buffer object
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
@@ -68,8 +68,8 @@ void Cube::SetupMesh() {
     glBindVertexArray(0);
 }
 
-void Cube::Render() {
+void Object::Render() {
     glBindVertexArray(VAO); // the vertex array object goes to openGL and it tells graphics card what to do 
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); //gives the indicies so it know whats where
     glBindVertexArray(0); //i dont know what this is but it crashes without it
-}*/
+}

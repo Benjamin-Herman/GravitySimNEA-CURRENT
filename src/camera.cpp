@@ -1,25 +1,25 @@
 #include "../headers/camera.h"
 
-Camera::Camera(glm::vec3 position)
+Camera::Camera(glm::vec3 position) //init object 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    MovementSpeed(5.0f),
+    MovementSpeed(5.0f), //set variables up for movement etc
     MouseSensitivity(0.1f),
     HeightSpeed(3.0f),
     Yaw(-90.0f),
     Pitch(0.0f) {
     Position = position;
-    WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+    WorldUp = glm::vec3(0.0f, 1.0f, 0.0f); //a relative vector for maths stuff
     updateCameraVectors();
 }
 
 void Camera::ProcessArrowKeys(float xoffset, float yoffset) {
-    xoffset *= MouseSensitivity * 5.0f; // Slower than mouse for better control
+    xoffset *= MouseSensitivity * 5.0f; // slower that mouse movement for precision
     yoffset *= MouseSensitivity * 5.0f;
 
     Yaw += xoffset;
     Pitch += yoffset;
 
-    // Constrain pitch to prevent flipping
+    // constrain to prevent spinning full 360 up pitch
     if (Pitch > 89.0f)
         Pitch = 89.0f;
     if (Pitch < -89.0f)
@@ -36,59 +36,68 @@ void Camera::ProcessKeyboard(GLFWwindow* window, float deltaTime) {
     float heightVelocity = HeightSpeed * deltaTime;
     glm::vec3 moveDir(0.0f);
 
-    // Horizontal movement
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        moveDir += Front;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    //handle WASD movement. 
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        moveDir += Front; //these are all vector directions. make maths easier i think
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         moveDir -= Front;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         moveDir -= Right;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         moveDir += Right;
+    }
 
-    // Vertical movement
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    //handle up and down with EQ keys
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         Position.y += heightVelocity;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
         Position.y -= heightVelocity;
+    }
 
-    // Normalize horizontal movement if needed
-    if (glm::length(moveDir) > 0.0f)
+    //normalise movement vectors so lengeth = 1. some maths thing which make comparisons easy :)
+    if (glm::length(moveDir) > 0.0f) {
         moveDir = glm::normalize(moveDir);
+    }
 
-    // Apply horizontal movement
+    //tell position vector to add whatever the speed is and direction. fancy maths stuff handled by glut
     Position += moveDir * velocity;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset) {
-    xoffset *= MouseSensitivity;
+    xoffset *= MouseSensitivity; //basically say move faster
     yoffset *= MouseSensitivity;
 
     Yaw += xoffset;
     Pitch += yoffset;
 
-    // Constrain pitch to prevent flipping
-    if (Pitch > 89.0f)
+    // same stuff that was in the arrow keys
+    if (Pitch > 89.0f) {
         Pitch = 89.0f;
-    if (Pitch < -89.0f)
+    }
+    if (Pitch < -89.0f) {
         Pitch = -89.0f;
+    }
 
     updateCameraVectors();
 }
 
 glm::mat4 Camera::GetViewMatrix() const {
-    return glm::lookAt(Position, Position + Front, Up);
+    return glm::lookAt(Position, Position + Front, Up); //some documentation said this. it gets the view matrix
 }
 
 void Camera::updateCameraVectors() {
-    // Calculate new Front vector
-    glm::vec3 front;
+    // calc new front facing vector
+    glm::vec3 front; //honesty no idea what this does i just know google says thats how i turn
     front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     front.y = sin(glm::radians(Pitch));
     front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
     Front = glm::normalize(front);
 
-    // Re-calculate Right and Up vectors
+    // recalc up and right vectors
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up = glm::normalize(glm::cross(Right, Front));
 }

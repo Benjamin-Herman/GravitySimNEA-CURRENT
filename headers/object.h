@@ -3,25 +3,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-#include "../headers/object.h"
-
-class Cube : public Object {
-
-};
-
-/*class Cube {
+class Object {
 public:
-    Cube();
-    void Update(float deltaTime);
-    void Render();
-    glm::mat4 GetModelMatrix() const;
+    Object();
+    virtual void Update(float deltaTime);
+    virtual void Render();
+    virtual glm::mat4 GetModelMatrix() const;
+    virtual ~Object() = default;
 
-private:
+protected:
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     glm::vec3 position;
     float rotationAngle;
     unsigned int VAO, VBO, EBO;
 
-    void SetupMesh();
-};*/
+    virtual void SetupMesh();
+};

@@ -1,21 +1,21 @@
 #include "../headers/shader.h"
-#include <glad/glad.h>  // Must be included before GLFW
+#include <glad/glad.h>  // include before GLFW or else bad things happen
 #include <GLFW/glfw3.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
-    // 1. Retrieve shader source code
+    // get shader source code as string
     std::string vertexCode;
     std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
+    std::ifstream vShaderFile; //take in vertex shader - verticies
+    std::ifstream fShaderFile; //take in fragment shader - colour
 
-    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //fail if bad code
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-    try {
+    try { //try catch cuz for some reason its more efficient
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         std::stringstream vShaderStream, fShaderStream;
@@ -24,55 +24,55 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
         fShaderStream << fShaderFile.rdbuf();
 
         vShaderFile.close();
-        fShaderFile.close();
+        fShaderFile.close(); //all this stuff opens file, reads them, and closes
 
-        vertexCode = vShaderStream.str();
+        vertexCode = vShaderStream.str(); //convert to strins
         fragmentCode = fShaderStream.str();
     }
     catch (std::ifstream::failure& e) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl;
+        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << std::endl; // uh oh
     }
 
-    const char* vShaderCode = vertexCode.c_str();
+    const char* vShaderCode = vertexCode.c_str(); //convert to characters
     const char* fShaderCode = fragmentCode.c_str();
 
-    // 2. Compile shaders
+    // compile time
     unsigned int vertex, fragment;
 
-    // Vertex shader
-    vertex = glCreateShader(GL_VERTEX_SHADER);
+    // vertex shader
+    vertex = glCreateShader(GL_VERTEX_SHADER); //call openGL functions. it does it for me
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
     CheckCompileErrors(vertex, "VERTEX");
 
-    // Fragment shader
-    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    // fragment shader
+    fragment = glCreateShader(GL_FRAGMENT_SHADER); //same as vertex
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     CheckCompileErrors(fragment, "FRAGMENT");
 
-    // Shader program
-    ID = glCreateProgram();
+    // shader program
+    ID = glCreateProgram(); //still dont know what a shader program is. its just a block of shader stuff for the GPU
     glAttachShader(ID, vertex);
-    glAttachShader(ID, fragment);
-    glLinkProgram(ID);
+    glAttachShader(ID, fragment); //attach both colour data and vertex data
+    glLinkProgram(ID); //link it to openGL
     CheckCompileErrors(ID, "PROGRAM");
 
-    glDeleteShader(vertex);
+    glDeleteShader(vertex); //delete to save space and not get memory leaks because this is a useless language
     glDeleteShader(fragment);
 }
 
 void Shader::Use() {
-    glUseProgram(ID);
+    glUseProgram(ID); //call openGL stuff
 }
 
 void Shader::SetMat4(const std::string& name, const glm::mat4& mat) const {
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]); //more openGL stuff
 }
 
 void Shader::CheckCompileErrors(unsigned int shader, std::string type) {
     int success;
-    char infoLog[1024];
+    char infoLog[1024]; //reads through, checks for uncompiles signs and what not. tells me if there is
     if (type != "PROGRAM") {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
@@ -90,6 +90,6 @@ void Shader::CheckCompileErrors(unsigned int shader, std::string type) {
 }
 
 void Shader::SetVec3(const std::string& name, const glm::vec3& value) const {
-    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]); //more openGL
 }
 

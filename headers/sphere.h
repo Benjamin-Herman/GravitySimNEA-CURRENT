@@ -2,26 +2,20 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-class Sphere {
+#include "../headers/object.h"
+
+class Sphere : public Object {
 public:
     Sphere(float radius = 1.0f, int sectors = 36, int stacks = 18);
-    void Update(float deltaTime);
-    void Render();
-    glm::mat4 GetModelMatrix() const;
-
+    void Render() override;
+    glm::mat4 GetModelMatrix() const override;
+    void Update(float deltaTime) override;
+        
 private:
-    void SetupMesh();
-    void BuildVertices();
-
+    void BuildVertices(); 
+    void SetupMesh() override;
     float radius;
     int sectorCount;
     int stackCount;
-
-    std::vector<float> vertices;
-    std::vector<unsigned int> indices;
-
-    glm::vec3 position;
-    float rotationAngle;
-
-    unsigned int VAO, VBO, EBO;
 };
+

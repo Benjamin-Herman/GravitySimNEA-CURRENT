@@ -10,7 +10,7 @@ public:
     void SetVec3(const std::string& name, const glm::vec3& value) const;
 
 private:
-    unsigned int ID;
+    unsigned int ID; //shader id so I know what one is what
     void CheckCompileErrors(unsigned int shader, std::string type);
 };
 
