@@ -18,10 +18,12 @@ void windowManager::activateGLFW() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-GLFWwindow* windowManager::createWindow() {
-    
+GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheight, const char* iscreenName) {
+    if (iwidth == 0) iwidth = width;
+    if (iheight == 0) iheight = height;
+    if (!iscreenName) iscreenName = screenName;
     // create window
-    GLFWwindow* window = glfwCreateWindow(width, height, screenName, NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(iwidth, iheight, iscreenName, NULL, NULL);
     if (!window) { //failed window
         std::cerr << "Failed to create window\n";
         glfwTerminate();

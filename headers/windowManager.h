@@ -8,7 +8,7 @@
 class windowManager {
 public:
     void activateGLFW(); //actiavtes all glfw stuff
-    GLFWwindow* createWindow(); //creates window
+    GLFWwindow* createWindow(unsigned int iwidth = 800, unsigned int iheight = 600, const char* iscreenName = "Gravity Simulator"); //creates window
 
 private:
     GLFWwindow* window; //window stored as pointer

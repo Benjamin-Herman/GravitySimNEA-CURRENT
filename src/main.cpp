@@ -72,6 +72,14 @@ int main() {
     glDeleteVertexArrays(1, &starVAO);
     glDeleteBuffers(1, &starVBO);
     glfwTerminate();
+
+    /*wm.activateGLFW();
+    GLFWwindow* newWindow = wm.createWindow(400, 400, "BYE BYE");
+    while (!glfwWindowShouldClose(newWindow)) {
+        glfwPollEvents();
+    }
+    glfwTerminate();/**/
+
     return 0;
 }
 
