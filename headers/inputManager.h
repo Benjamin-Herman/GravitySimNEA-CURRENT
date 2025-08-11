@@ -43,3 +43,4 @@ void mouseInput(GLFWwindow* window, double xpos, double ypos, Camera& camera) {
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
+

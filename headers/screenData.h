@@ -2,4 +2,4 @@
 
 const unsigned int width = 800; // unsigned so cannot be negative. const because it doesnt need to change
 const unsigned int height = 600;
-const char* screenName = "Gravity Simulator"; //pointer to this data
+inline const char* screenName = "Gravity Simulator"; //pointer to this data

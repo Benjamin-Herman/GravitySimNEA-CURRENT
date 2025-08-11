@@ -73,3 +73,7 @@ void Object::Render() {
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0); //gives the indicies so it know whats where
     glBindVertexArray(0); //i dont know what this is but it crashes without it
 }
+
+std::string Object::getType() {
+    return type;
+}
