@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+
 #include "../headers/includes.h"
 #include "../headers/cube.h"
 #include "../headers/sphere.h"
@@ -10,9 +11,9 @@
 #include "../headers/camera.h"
 #include "../headers/graphicsManager.h"
 #include "../headers/inputManager.h"
-#include "../headers/screenData.h"
+//#include "../headers/screenData.h"
 #include "../headers/time.h"
-#include "../headers/object.h"
+//#include "../headers/object.h"
 #include "../headers/windowManager.h"
 
 std::vector<std::unique_ptr<Object>> objs;

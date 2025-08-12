@@ -1,11 +1,11 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+
 
 #include "../headers/windowManager.h"
-#include "../headers/screenData.h"
-//#include <glad/glad.h>
 #include <iostream>
+
+//#include "imgui.h"
+//#include "imgui_impl_glfw.h"
+//#include "imgui_impl_opengl3.h"
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height); //just base class to return of null
@@ -43,12 +43,12 @@ GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheigh
     }
 
     //imgui implementation
-    IMGUI_CHECKVERSION();
+    /*IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplOpenGL3_Init("#version 330");*/
 
     return window;
 }
