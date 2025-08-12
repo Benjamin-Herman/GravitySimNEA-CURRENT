@@ -1,7 +1,10 @@
 #pragma once
+#ifndef WINDOW_MANAGER_H
+#define WINDOW_MANAGER_H
+
 #include "../headers/includes.h"
 #include "../headers/screenData.h"
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 
 
@@ -13,3 +16,5 @@ public:
 private:
     GLFWwindow* window; //window stored as pointer
 };
+
+#endif

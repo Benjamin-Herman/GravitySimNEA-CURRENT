@@ -1,4 +1,10 @@
 #pragma once
+#ifndef GRAPHICS_MANAGER_H
+#define GRAPHICS_MANAGER_H
+
+
+
+
 #include "../headers/includes.h"
 #include "../headers/screenData.h"
 #include <algorithm>
@@ -140,3 +146,5 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
     // swap front and back buffer so new screen and reset poll events. 
     glfwSwapBuffers(window);
 }
+
+#endif

@@ -1,4 +1,8 @@
 #pragma once
+#ifndef CUBE_H
+#define CUBE_H
+
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -25,3 +29,5 @@ private:
 
     void SetupMesh();
 };*/
+
+#endif

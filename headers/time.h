@@ -1,4 +1,8 @@
 #pragma once
+#ifndef TIME_H
+#define TIME_H
+
+
 #include "../headers/includes.h"
 
 class Time {
@@ -15,3 +19,5 @@ public:
         return dt;
     }
 };
+
+#endif

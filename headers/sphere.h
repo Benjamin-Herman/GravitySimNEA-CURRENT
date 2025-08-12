@@ -1,4 +1,9 @@
 #pragma once
+
+#ifndef SPHERE_H
+#define SPHERE_H
+
+
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -19,3 +24,4 @@ private:
     int stackCount;
 };
 
+#endif

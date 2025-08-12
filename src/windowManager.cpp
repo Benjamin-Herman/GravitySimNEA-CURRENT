@@ -1,6 +1,10 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "../headers/windowManager.h"
 #include "../headers/screenData.h"
-#include <glad/glad.h>
+//#include <glad/glad.h>
 #include <iostream>
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -37,6 +41,14 @@ GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheigh
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
     }
+
+    //imgui implementation
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
     return window;
 }

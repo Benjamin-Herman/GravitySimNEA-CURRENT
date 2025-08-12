@@ -1,4 +1,9 @@
 #pragma once
+
+#ifndef INPUT_MANAGER_H
+#define INPUT_MANAGER_H
+
+
 #include "../headers/screenData.h"
 
 float lastX = width / 2.0f;
@@ -44,3 +49,5 @@ void mouseInput(GLFWwindow* window, double xpos, double ypos, Camera& camera) {
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
+
+#endif

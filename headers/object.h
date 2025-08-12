@@ -1,4 +1,8 @@
 #pragma once
+#ifndef OBJECT_H
+#define OBJECT_H
+
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -23,3 +27,4 @@ protected:
 
     virtual void SetupMesh();
 };
+#endif
