@@ -6,9 +6,15 @@
 
 
 #include "../headers/includes.h"
+#include "../headers/windowManager.h"
 #include "../headers/screenData.h"
 #include <algorithm>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
+bool imGUI = true;
 
 glm::vec3 getStarColor(float temperature) {
     //normalize temperature (2500K-40000K)
@@ -100,12 +106,45 @@ void CreateStarfield(unsigned int& VAO, unsigned int& VBO, int starCount) {
     glBindVertexArray(0);
 }
 
-void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, GLFWwindow* window) {
+void renderImGUIWindow(GLFWWindow* window) {
+    //seperate window rendering here
+    
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //tell imgui new frame begin
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    float size = 1.0f;
+    float color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+
+    ImGui::Begin("IMGUI");
+    ImGui::Text("hi :)"); //text in window
+    ImGui::SliderFloat("Size", &size, 0.5f, 2.0f); //slider in window
+    ImGui::ColorEdit4("Color", color); //fancy colour picker
+    ImGui::End(); //end window
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    glfwSwapBuffers(window);
+}
+
+void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, std::vector<GLFWwindow*> windows) {
+    GLFWWindow* window = windows[0];
+    GLFWWindow* GUIwindow = windows[1];
     Shader objectShader = shaders[0];
     Shader starShader = shaders[1];
     // clear screen. comment out for fun looking screen
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+
+    renderImGUIWindow(GUIwindow);
+    
+
 
     // make projection so the view is like you eyes
     glm::mat4 projection = glm::perspective(
@@ -142,6 +181,7 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
         obj->Render();
     }
 
+    
 
     // swap front and back buffer so new screen and reset poll events. 
     glfwSwapBuffers(window);

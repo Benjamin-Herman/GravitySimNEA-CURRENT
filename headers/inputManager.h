@@ -9,6 +9,7 @@
 float lastX = width / 2.0f;
 float lastY = height / 2.0f; //middle of the screen
 bool firstMouse = true;
+bool mouseDisabled = false;
 
 void processArrowKeys(GLFWwindow* window, float deltaTime, Camera& camera) { //arror key rotate keybind
     float sensitivity = 50.0f * deltaTime; //trial and error got to 50
@@ -28,12 +29,23 @@ void processArrowKeys(GLFWwindow* window, float deltaTime, Camera& camera) { //a
 }
 
 void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { //closes window on escape pressed
-        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { //check escape input
+        //glfwSetWindowShouldClose(window, true); //close window
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        firstMouse = true;
+        mouseDisabled = true;
+    }
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        mouseDisabled = false;
     }
 }
 
 void mouseInput(GLFWwindow* window, double xpos, double ypos, Camera& camera) {
+    if (mouseDisabled) {
+        return;
+    }
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos; //set to centre screen on last x and y to ensure no null values

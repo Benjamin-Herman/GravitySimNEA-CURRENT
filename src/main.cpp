@@ -18,6 +18,8 @@
 
 std::vector<std::unique_ptr<Object>> objs;
 
+std::vector<GLFWwindow*> windows;
+
 // func declarations to access anywhere in file
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
@@ -32,10 +34,17 @@ int main() {
     windowManager wm; //create windowmanager instance. activate GLFW and create window
     wm.activateGLFW();
     GLFWwindow* window = wm.createWindow();
+    GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW");
+    windows.push_back(window);
+    windows.push_back(GUIwindow);
 
     // input callback thingys
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    //GUI window callback things
+    glfwSetCursorPosCallback(GUIwindow, mouse_callback);
+    glfwSetInputMode(GUIwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // enable depth testing
     glEnable(GL_DEPTH_TEST);
