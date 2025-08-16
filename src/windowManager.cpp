@@ -23,12 +23,12 @@ void windowManager::activateGLFW() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheight, const char* iscreenName) {
+GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheight, const char* iscreenName, GLFWWindow+ nothing, GLFWWindow* referenceWindow) {
     if (iwidth == 0) iwidth = width;
     if (iheight == 0) iheight = height;
     if (!iscreenName) iscreenName = screenName;
     // create window
-    GLFWwindow* window = glfwCreateWindow(iwidth, iheight, iscreenName, NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(iwidth, iheight, iscreenName, NULL, referenceWindow);
     if (!window) { //failed window
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -48,7 +48,7 @@ GLFWwindow* windowManager::createWindow(unsigned int iwidth, unsigned int iheigh
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window, true); 
     ImGui_ImplOpenGL3_Init("#version 330");
 
     return window;

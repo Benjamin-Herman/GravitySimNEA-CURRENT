@@ -108,7 +108,8 @@ void CreateStarfield(unsigned int& VAO, unsigned int& VBO, int starCount) {
 
 void renderImGUIWindow(GLFWWindow* window) {
     //seperate window rendering here
-    
+    glfwMakeContextCurrent(window);
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -139,10 +140,6 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
     // clear screen. comment out for fun looking screen
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-    renderImGUIWindow(GUIwindow);
     
 
 
@@ -181,7 +178,8 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
         obj->Render();
     }
 
-    
+    renderImGUIWindow(GUIwindow);
+    glfwMakeContextCurrent(window);
 
     // swap front and back buffer so new screen and reset poll events. 
     glfwSwapBuffers(window);

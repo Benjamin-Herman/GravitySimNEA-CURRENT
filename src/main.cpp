@@ -34,7 +34,7 @@ int main() {
     windowManager wm; //create windowmanager instance. activate GLFW and create window
     wm.activateGLFW();
     GLFWwindow* window = wm.createWindow();
-    GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW");
+    GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW", NULL, window);
     windows.push_back(window);
     windows.push_back(GUIwindow);
 
