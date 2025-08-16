@@ -5,7 +5,9 @@
 
 
 
+
 #include "../headers/includes.h"
+#include "../headers/inputManager.h"
 #include "../headers/windowManager.h"
 #include "../headers/screenData.h"
 #include <algorithm>
@@ -106,11 +108,11 @@ void CreateStarfield(unsigned int& VAO, unsigned int& VBO, int starCount) {
     glBindVertexArray(0);
 }
 
-void renderImGUIWindow(GLFWWindow* window) {
+void renderImGUIWindow(GLFWwindow* window) {
     //seperate window rendering here
     glfwMakeContextCurrent(window);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f); // ultra black for space
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //tell imgui new frame begin
@@ -127,14 +129,20 @@ void renderImGUIWindow(GLFWWindow* window) {
     ImGui::ColorEdit4("Color", color); //fancy colour picker
     ImGui::End(); //end window
 
+    glfwPollEvents();
+    processInput(window);
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
+   
+    
 }
 
 void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, std::vector<GLFWwindow*> windows) {
-    GLFWWindow* window = windows[0];
-    GLFWWindow* GUIwindow = windows[1];
+    GLFWwindow* window = windows[0];
+    //GLFWwindow* GUIwindow = windows[1];
+    glfwMakeContextCurrent(window);
     Shader objectShader = shaders[0];
     Shader starShader = shaders[1];
     // clear screen. comment out for fun looking screen
@@ -177,9 +185,14 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
         objectShader.SetMat4(obj->getType(), obj->GetModelMatrix());
         obj->Render();
     }
+    //if (glfwWindowShouldClose(GUIwindow)) {
+    //    imGUI = false;
+    //}
+    if (imGUI) {
+        //renderImGUIWindow(GUIwindow);
+        glfwMakeContextCurrent(window);
+    }
 
-    renderImGUIWindow(GUIwindow);
-    glfwMakeContextCurrent(window);
 
     // swap front and back buffer so new screen and reset poll events. 
     glfwSwapBuffers(window);

@@ -34,17 +34,17 @@ int main() {
     windowManager wm; //create windowmanager instance. activate GLFW and create window
     wm.activateGLFW();
     GLFWwindow* window = wm.createWindow();
-    GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW", NULL, window);
+    //GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW", window, true);
     windows.push_back(window);
-    windows.push_back(GUIwindow);
+    //windows.push_back(GUIwindow);
 
     // input callback thingys
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //GUI window callback things
-    glfwSetCursorPosCallback(GUIwindow, mouse_callback);
-    glfwSetInputMode(GUIwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetCursorPosCallback(GUIwindow, mouse_callback);
+    //glfwSetInputMode(GUIwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // enable depth testing
     glEnable(GL_DEPTH_TEST);
@@ -65,7 +65,7 @@ int main() {
     objs.push_back(std::make_unique<Sphere>(0.8f));
 
     // render loop. TODO move to graphics manager
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
         float deltaTime = Time::DeltaTime(); //get delta time
 
         //process input commands. basically say i call youuu
@@ -73,7 +73,7 @@ int main() {
         processArrowKeys(window, deltaTime, camera);
         camera.ProcessKeyboard(window, deltaTime);
 
-        renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, window);
+        renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
         
         glfwPollEvents();
     }
