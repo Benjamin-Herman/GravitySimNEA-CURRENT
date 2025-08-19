@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #ifndef SPHERE_H
 #define SPHERE_H
 
@@ -24,4 +24,4 @@ private:
     int stackCount;
 };
 
-#endif
+#endif*/

@@ -16,7 +16,7 @@
 //#include "../headers/object.h"
 #include "../headers/windowManager.h"
 
-std::vector<std::unique_ptr<Object>> objs;
+
 
 std::vector<GLFWwindow*> windows;
 
@@ -61,8 +61,9 @@ int main() {
     CreateStarfield(starVAO, starVBO, 5000);
 
     // make objects
-    objs.push_back(std::make_unique<Cube>());
-    objs.push_back(std::make_unique<Sphere>(0.8f));
+    std::vector<Object> objs;
+    Object sphere("models/sphere.obj");
+    objs.push_back(sphere);
 
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {

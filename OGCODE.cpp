@@ -147,7 +147,7 @@ int main() {
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //telling graphics card what version of openGL we are using
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(width, height, "Gravity Simulator", nullptr, nullptr);
     //creates a window

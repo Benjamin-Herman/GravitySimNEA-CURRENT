@@ -1,4 +1,4 @@
-#include "../headers/sphere.h"
+/*#include "../headers/sphere.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -122,4 +122,4 @@ void Sphere::Render() {
     glBindVertexArray(VAO); //vertex array object. tell openGL to draw that stuff
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-}
+}*/

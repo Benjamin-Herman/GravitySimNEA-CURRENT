@@ -139,7 +139,7 @@ void renderImGUIWindow(GLFWwindow* window) {
     
 }
 
-void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, std::vector<GLFWwindow*> windows) {
+void renderFrame(std::vector<Object>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, std::vector<GLFWwindow*> windows) {
     GLFWwindow* window = windows[0];
     //GLFWwindow* GUIwindow = windows[1];
     glfwMakeContextCurrent(window);
@@ -181,9 +181,9 @@ void renderFrame(std::vector<std::unique_ptr<Object>>& objs, std::vector<Shader>
 
 
     for (auto& obj : objs) {
-        obj->Update(deltaTime);
-        objectShader.SetMat4(obj->getType(), obj->GetModelMatrix());
-        obj->Render();
+        obj.Update(deltaTime);
+        objectShader.SetMat4(obj.getType(), obj.GetModelMatrix());
+        obj.Render();
     }
     //if (glfwWindowShouldClose(GUIwindow)) {
     //    imGUI = false;

@@ -10,7 +10,8 @@
 
 class Object {
 public:
-    Object();
+    Object(const std::string& objFilePath); 
+    bool LoadFromFile(const std::string& filePath); 
     std::string getType();
     virtual void Update(float deltaTime);
     virtual void Render();

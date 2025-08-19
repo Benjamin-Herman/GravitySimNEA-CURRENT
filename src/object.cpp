@@ -1,39 +1,95 @@
 #include "../headers/Object.h"
+
 #include <glad/glad.h>
+#include <iostream>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+Object::Object(const std::string& objFilePath) : position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
+    //try to load from OBJ file and if not fall back to cube
+    if (!LoadFromFile(objFilePath)) {
+        // fallback to default cube if OBJ loading fails
+        // Object vertices with colors (8 vertices, each with 3 position + 3 color)
+        // Object verts with colours. 8 verts. 3 pos and 3 colour
+        vertices = {
+            // positions          // colours
+            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f
+        }; // a list of all verticies
 
-Object::Object() : position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
-    // Object vertices with colors (8 vertices, each with 3 position + 3 color)
-    // Object verts with colours. 8 verts. 3 pos and 3 colour
-    vertices = {
-        // positions          // colours
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f
-    }; // a list of all verticies
-
-    // Object indices list. if not like this then memory is wasted :(
-    indices = {
-        0, 1, 2, 2, 3, 0, // front
-        1, 5, 6, 6, 2, 1, // right
-        5, 4, 7, 7, 6, 5, // back
-        4, 0, 3, 3, 7, 4, // left
-        3, 2, 6, 6, 7, 3, // top
-        4, 5, 1, 1, 0, 4  // bottom
-    };
+        // Object indices list. if not like this then memory is wasted :(
+        indices = {
+            0, 1, 2, 2, 3, 0, // front
+            1, 5, 6, 6, 2, 1, // right
+            5, 4, 7, 7, 6, 5, // back
+            4, 0, 3, 3, 7, 4, // left
+            3, 2, 6, 6, 7, 3, // top
+            4, 5, 1, 1, 0, 4  // bottom
+        };
+    }
 
     SetupMesh();
 }
 
-void Object::Update(float deltaTime) {
-    rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
-    if (rotationAngle > 360.0f) {
-        rotationAngle -= 360.0f;
+bool Object::LoadFromFile(const std::string& filePath) {
+    //clear existing data
+    vertices.clear();
+    indices.clear();
+
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    //load the OBJ file using tinyobjloader
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filePath.c_str())) {
+        std::cout << "Failed to load OBJ: " << warn + err << std::endl;
+        return false;
     }
+
+    //process each shape in the OBJ file
+    for (const auto& shape : shapes) {
+        for (const auto& index : shape.mesh.indices) {
+            //get vertex position from OBJ
+            float x = attrib.vertices[3 * index.vertex_index + 0];
+            float y = attrib.vertices[3 * index.vertex_index + 1];
+            float z = attrib.vertices[3 * index.vertex_index + 2];
+
+            //add position to vertices
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            //add color
+            //vertices.push_back(0.5f); //red
+            //vertices.push_back(0.5f); //green
+            //vertices.push_back(0.5f); //blue
+            vertices.push_back((x + 0.5f) * 0.8f); //red 
+            vertices.push_back((y + 0.5f) * 0.8f); //green 
+            vertices.push_back((z + 0.5f) * 0.8f); //blue 
+
+            //add indexes
+            indices.push_back(indices.size());
+        }
+    }
+
+    return true;
+}
+
+void Object::Update(float deltaTime) {
+    bool rot = false;
+    if (rot) {
+        rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
+        if (rotationAngle > 360.0f) {
+            rotationAngle -= 360.0f;
+        }
+    }
+
 }
 
 glm::mat4 Object::GetModelMatrix() const {
