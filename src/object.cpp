@@ -85,6 +85,7 @@ bool Object::LoadFromFile(const std::string& filePath) {
 
 
 void Object::Update(float deltaTime) {
+    float dt = Time::DeltaTime();
     bool rot = false;
     if (rot) {
         rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
@@ -92,9 +93,9 @@ void Object::Update(float deltaTime) {
             rotationAngle -= 360.0f;
         }
     }
-
-    position += velocity * Time::DeltaTime();  //AI LOOK FOR THESE TWO LINES
-    velocity += acceleration * Time::DeltaTime();
+    //std::cout << "SPHERE: " << position.x << " " << position.y << " " << position.z << "\n";
+    position += velocity * dt;  //AI LOOK FOR THESE TWO LINES
+    velocity += acceleration * dt;
 
 
 }

@@ -76,7 +76,7 @@ int main() {
         camera.ProcessKeyboard(window, deltaTime);
 
         renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
-        objs[0].setVelocity(glm::vec3{ 0 });
+        //objs[0].setVelocity(glm::vec3{ 0 });
         glfwPollEvents();
     }
 

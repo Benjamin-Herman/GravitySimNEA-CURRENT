@@ -23,8 +23,8 @@ public:
     void setAcceleration(glm::vec3 accel);
 
 protected:
-    glm::vec3 velocity = glm::vec3{0.1f, 0.1f, 0.0f};
-    glm::vec3 acceleration;
+    glm::vec3 velocity = glm::vec3{ 0.0f };
+    glm::vec3 acceleration = glm::vec3{ 3.1f, 0.1f, 0.0f };
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     glm::vec3 position;

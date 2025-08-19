@@ -4,7 +4,7 @@ Camera::Camera(glm::vec3 position) //init object
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(50.0f), //set variables up for movement etc
     MouseSensitivity(0.1f),
-    HeightSpeed(50.0f),
+    HeightSpeed(30.0f),
     Yaw(-90.0f),
     Pitch(0.0f) {
     Position = position;
@@ -32,30 +32,32 @@ void Camera::ProcessArrowKeys(float xoffset, float yoffset) {
 void Camera::ProcessKeyboard(GLFWwindow* window, float deltaTime) {
     if (window == nullptr) return;
 
+    float dt = Time::DeltaTime();
+
     float velocity = MovementSpeed * deltaTime;
     float heightVelocity = HeightSpeed * deltaTime;
     glm::vec3 moveDir(0.0f);
 
     //handle WASD movement. 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        moveDir += Front; //these are all vector directions. make maths easier i think
+        moveDir += Front * dt; //these are all vector directions. make maths easier i think
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        moveDir -= Front;
+        moveDir -= Front * dt;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        moveDir -= Right;
+        moveDir -= Right * dt;
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        moveDir += Right;
+        moveDir += Right * dt;
     }
 
     //handle up and down with EQ keys
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        Position.y += heightVelocity;
+        moveDir += Up * dt;
     }
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-        Position.y -= heightVelocity;
+        moveDir -= Up * dt;
     }
 
     //normalise movement vectors so lengeth = 1. some maths thing which make comparisons easy :)
@@ -65,6 +67,7 @@ void Camera::ProcessKeyboard(GLFWwindow* window, float deltaTime) {
 
     //tell position vector to add whatever the speed is and direction. fancy maths stuff handled by glut
     Position += moveDir * velocity;
+    //std::cout << "CAMERA: " << Position.x << " " << Position.y << " " << Position.z << "\n";
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset) {

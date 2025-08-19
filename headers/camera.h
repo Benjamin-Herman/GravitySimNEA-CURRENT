@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "../headers/time.h"
 #include <GLFW/glfw3.h>
 
 class Camera {
