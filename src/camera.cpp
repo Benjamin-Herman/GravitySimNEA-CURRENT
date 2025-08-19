@@ -2,9 +2,9 @@
 
 Camera::Camera(glm::vec3 position) //init object 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-    MovementSpeed(5.0f), //set variables up for movement etc
+    MovementSpeed(50.0f), //set variables up for movement etc
     MouseSensitivity(0.1f),
-    HeightSpeed(3.0f),
+    HeightSpeed(50.0f),
     Yaw(-90.0f),
     Pitch(0.0f) {
     Position = position;

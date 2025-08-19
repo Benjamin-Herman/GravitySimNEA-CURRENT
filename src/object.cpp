@@ -1,4 +1,5 @@
 #include "../headers/Object.h"
+#include "../headers/time.h"
 
 #include <glad/glad.h>
 #include <iostream>
@@ -81,6 +82,8 @@ bool Object::LoadFromFile(const std::string& filePath) {
     return true;
 }
 
+
+
 void Object::Update(float deltaTime) {
     bool rot = false;
     if (rot) {
@@ -90,6 +93,10 @@ void Object::Update(float deltaTime) {
         }
     }
 
+    position += velocity * Time::DeltaTime();  //AI LOOK FOR THESE TWO LINES
+    velocity += acceleration * Time::DeltaTime();
+
+
 }
 
 glm::mat4 Object::GetModelMatrix() const {
@@ -97,6 +104,22 @@ glm::mat4 Object::GetModelMatrix() const {
     model = glm::translate(model, position); // calls function to change matrix
     model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.5f, 1.0f, 0.0f)); //same stuff but rotate
     return model;
+}
+
+glm::vec3 Object::getVelocity(){
+    return velocity;
+}
+
+glm::vec3 Object::getAcceleration(){
+    return acceleration;
+}
+
+void Object::setVelocity(glm::vec3 vel){
+    velocity = vel;
+}
+
+void Object::setAcceleration(glm::vec3 accel){
+    acceleration = accel;
 }
 
 void Object::SetupMesh() {

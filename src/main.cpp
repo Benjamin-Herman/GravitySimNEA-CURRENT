@@ -63,6 +63,7 @@ int main() {
     // make objects
     std::vector<Object> objs;
     Object sphere("models/sphere.obj");
+    Object* spherePointer;
     objs.push_back(sphere);
 
     // render loop. TODO move to graphics manager
@@ -75,7 +76,7 @@ int main() {
         camera.ProcessKeyboard(window, deltaTime);
 
         renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
-        
+        objs[0].setVelocity(glm::vec3{ 0 });
         glfwPollEvents();
     }
 
