@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BUILDS\Source.cpp" />
     <ClCompile Include="headers\windowManager.h" />
     <ClCompile Include="includes\imgui.cpp" />
     <ClCompile Include="includes\imgui_demo.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="includes\imgui_impl_opengl3.cpp" />
     <ClCompile Include="includes\imgui_tables.cpp" />
     <ClCompile Include="includes\imgui_widgets.cpp" />
+    <ClCompile Include="models\Source.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\main.cpp" />
