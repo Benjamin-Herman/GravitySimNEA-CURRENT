@@ -52,6 +52,7 @@ bool Object::LoadFromFile(const std::string& filePath) {
         std::cout << "Failed to load OBJ: " << warn + err << std::endl;
         return false;
     }
+    float maxDistSq = 0.0f;
 
     //process each shape in the OBJ file
     for (const auto& shape : shapes) {
@@ -60,6 +61,12 @@ bool Object::LoadFromFile(const std::string& filePath) {
             float x = attrib.vertices[3 * index.vertex_index + 0];
             float y = attrib.vertices[3 * index.vertex_index + 1];
             float z = attrib.vertices[3 * index.vertex_index + 2];
+
+            float distSq = x * x + y * y + z * z;
+            if (distSq > maxDistSq) {
+                maxDistSq = distSq;
+            }
+
 
             //add position to vertices
             vertices.push_back(x);
@@ -78,7 +85,8 @@ bool Object::LoadFromFile(const std::string& filePath) {
             indices.push_back(indices.size());
         }
     }
-
+    radius = std::sqrt(maxDistSq);
+    std::cout << radius;
     return true;
 }
 
@@ -93,8 +101,9 @@ void Object::Update(float dt) {
             rotationAngle -= 360.0f;
         }
     }
-    //std::cout << "SPHERE: " << position.x << " " << position.y << " " << position.z << "\n";
-    position += velocity * dt;  //AI LOOK FOR THESE TWO LINES
+    //std::cout << "SPHERE: " << acceleration.x << " " << acceleration.y << " " << acceleration.z << "\n";
+   
+    position += velocity * dt; 
     velocity += acceleration * dt;
 
 
@@ -107,20 +116,16 @@ glm::mat4 Object::GetModelMatrix() const {
     return model;
 }
 
-glm::vec3 Object::getVelocity(){
-    return velocity;
-}
-
-glm::vec3 Object::getAcceleration(){
-    return acceleration;
-}
-
 void Object::setVelocity(glm::vec3 vel){
     velocity = vel;
 }
 
 void Object::setAcceleration(glm::vec3 accel){
     acceleration = accel;
+}
+
+void Object::setPosition(glm::vec3 pos){
+    position = pos;
 }
 
 void Object::SetupMesh() {

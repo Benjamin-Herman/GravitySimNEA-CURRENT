@@ -1,6 +1,6 @@
 #include "../headers/camera.h"
 
-Camera::Camera(glm::vec3 position) //init object 
+Camera::Camera(glm::vec3 position, float pitch, float yaw) //init object 
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
     MovementSpeed(5.0f), //set variables up for movement etc
     MouseSensitivity(0.1f),
@@ -8,6 +8,8 @@ Camera::Camera(glm::vec3 position) //init object
     Yaw(-90.0f),
     Pitch(0.0f) {
     Position = position;
+    Pitch = pitch;
+    Yaw = yaw - 90.0f;
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f); //a relative vector for maths stuff
     updateCameraVectors();
 }

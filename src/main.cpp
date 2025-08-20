@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-
+#include "../headers/gravityManager.h"
 #include "../headers/includes.h"
 #include "../headers/cube.h"
 #include "../headers/sphere.h"
@@ -25,7 +25,7 @@ std::vector<GLFWwindow*> windows;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // couple globals
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 10.0f, 5.0f), -45.0f, 45.0f);
 unsigned int starVAO, starVBO;
 
 int main() {
@@ -64,9 +64,19 @@ int main() {
     // make objects
     std::vector<Object> objs;
     Object sphere("models/sphere.obj");
+    Object sphere2("models/sphere.obj");
+    //Object sphere3("models/sphere.obj");
     Object plane("models/plane.obj");
+    //plane.setPosition(glm::vec3{ 0.0f, -1.0f, 0.0f });
+    sphere2.setVelocity(glm::vec3{ 0.0f, 0.0f, 1.0f });
+    sphere.setVelocity(glm::vec3{ 0.0f, 0.0f, -1.0f });
+    sphere2.setPosition(glm::vec3{ 15.0f, 0.0f, 0.0f });
+    //sphere3.setVelocity(glm::vec3{ 0.0f, -1.0f, 0.0f });
+    //sphere3.setPosition(glm::vec3{ -7.0f, 5.0f, 0.0f });
     objs.push_back(sphere);
-    objs.push_back(plane);
+    objs.push_back(sphere2);
+    //objs.push_back(sphere3);
+    //objs.push_back(plane);
 
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
@@ -76,9 +86,8 @@ int main() {
         processInput(window);
         processArrowKeys(window, deltaTime, camera);
         camera.ProcessKeyboard(window, deltaTime);
-
+        gravitySystemUpdate(objs);
         renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
-        objs[1].setVelocity(glm::vec3{ 0 });
         glfwPollEvents();
     }
 

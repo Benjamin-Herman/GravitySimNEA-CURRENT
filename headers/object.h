@@ -17,14 +17,21 @@ public:
     void Render();
     glm::mat4 GetModelMatrix() const;
     ~Object() = default;
-    glm::vec3 getVelocity();
-    glm::vec3 getAcceleration();
+    glm::vec3 getVelocity() { return velocity; }
+    glm::vec3 getAcceleration() { return acceleration; }
+    glm::vec3 getPosition() { return position; }
     void setVelocity(glm::vec3 vel);
     void setAcceleration(glm::vec3 accel);
+    void setPosition(glm::vec3 pos);
+    float getMass() { return mass; }
+    float getRadius() { return radius; }
+    void setType(std::string t) { type = t; }
 
 protected:
-    glm::vec3 velocity = glm::vec3{ 0.0f };
-    glm::vec3 acceleration = glm::vec3{ 3.1f, 0.1f, 0.0f };
+    float mass = 1000000000000.0f;
+    float radius = 100.0f;
+    glm::vec3 velocity;
+    glm::vec3 acceleration;
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
     glm::vec3 position;
