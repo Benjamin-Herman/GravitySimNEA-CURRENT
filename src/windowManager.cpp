@@ -1,6 +1,8 @@
 #include "../headers/windowManager.h"
 #include <iostream>
+#include <string>
 #include <GLFW/glfw3.h>
+
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -21,6 +23,29 @@ void windowManager::activateGLFW() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
+void windowManager::showFPS() {
+    using clock = std::chrono::high_resolution_clock;
+    static int frameCount = 0;
+    static auto lastTime = clock::now();
+
+    frameCount++;
+    auto now = clock::now();
+    std::chrono::duration<double> elapsed = now - lastTime;
+
+    if (elapsed.count() >= 0.2) {
+        double fps = frameCount / elapsed.count();
+
+        std::string fpsStr = std::string(screenName) + " | FPS: " + std::to_string(fps);
+        const char* cstr = fpsStr.c_str();
+
+        glfwSetWindowTitle(window, fpsStr.c_str());
+
+        frameCount = 0;
+        lastTime = now;
+    }
+
+}
+
 GLFWwindow* windowManager::createWindow(unsigned int width, unsigned int height, const char* screenName, GLFWwindow* share, bool isGUI){
     // First window creation (main window)
     if (!share) {
@@ -34,7 +59,7 @@ GLFWwindow* windowManager::createWindow(unsigned int width, unsigned int height,
     }
 
     // Create window (automatically shares context if 'share' is not null)
-    GLFWwindow* window = glfwCreateWindow(width, height, screenName, nullptr, share);
+    window = glfwCreateWindow(width, height, screenName, nullptr, share);
     if (!window) {
         if (!share) glfwTerminate();
         throw std::runtime_error("Window creation failed");
@@ -48,7 +73,7 @@ GLFWwindow* windowManager::createWindow(unsigned int width, unsigned int height,
             throw std::runtime_error("GLAD initialization failed");
         }
     }
-
+    //glfwSwapInterval(0);
     return window;
 }
 

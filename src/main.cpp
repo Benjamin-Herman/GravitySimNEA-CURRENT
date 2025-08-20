@@ -18,6 +18,7 @@
 
 
 
+
 std::vector<GLFWwindow*> windows;
 
 // func declarations to access anywhere in file
@@ -63,20 +64,21 @@ int main() {
     // make objects
     std::vector<Object> objs;
     Object sphere("models/sphere.obj");
-    Object* spherePointer;
+    Object plane("models/plane.obj");
     objs.push_back(sphere);
+    objs.push_back(plane);
 
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
         float deltaTime = Time::DeltaTime(); //get delta time
-
         //process input commands. basically say i call youuu
+        wm.showFPS();
         processInput(window);
         processArrowKeys(window, deltaTime, camera);
         camera.ProcessKeyboard(window, deltaTime);
 
         renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
-        //objs[0].setVelocity(glm::vec3{ 0 });
+        objs[1].setVelocity(glm::vec3{ 0 });
         glfwPollEvents();
     }
 

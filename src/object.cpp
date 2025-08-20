@@ -84,11 +84,11 @@ bool Object::LoadFromFile(const std::string& filePath) {
 
 
 
-void Object::Update(float deltaTime) {
-    float dt = Time::DeltaTime();
+void Object::Update(float dt) {
+    //float dt = Time::DeltaTime();
     bool rot = false;
     if (rot) {
-        rotationAngle += 50.0f * deltaTime; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
+        rotationAngle += 50.0f * dt; //tell angle to go brrrr - srs tho it turns the Object by a certain amount by dt
         if (rotationAngle > 360.0f) {
             rotationAngle -= 360.0f;
         }

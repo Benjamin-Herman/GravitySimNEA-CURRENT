@@ -4,6 +4,7 @@
 
 #include "../headers/includes.h"
 #include "../headers/screenData.h"
+#include <chrono>
 //#include <GLFW/glfw3.h>
 
 
@@ -11,6 +12,7 @@
 class windowManager {
 public:
     void activateGLFW(); //actiavtes all glfw stuff
+    void showFPS();
     GLFWwindow* createWindow(unsigned int width = 800, unsigned int height = 600,
         const char* screenName = "Graphics Simulator",
         GLFWwindow* share = nullptr, bool isGUI = false);
