@@ -15,6 +15,7 @@
 #include "../headers/time.h"
 //#include "../headers/object.h"
 #include "../headers/windowManager.h"
+#include "../headers/saveLoader.h"
 
 
 
@@ -28,13 +29,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 Camera camera(glm::vec3(0.0f, 10.0f, 5.0f), -45.0f, 45.0f);
 unsigned int starVAO, starVBO;
 
+
+
 int main() {
     //random seed for the stars. no clue why its still in main.cpp
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
+
+
     windowManager wm; //create windowmanager instance. activate GLFW and create window
     wm.activateGLFW();
-    GLFWwindow* window = wm.createWindow();
+    GLFWwindow* window = wm.createWindow(800, 600);
     //GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW", window, true);
     windows.push_back(window);
     //windows.push_back(GUIwindow);
@@ -60,8 +65,10 @@ int main() {
 
     // make starsssss
     CreateStarfield(starVAO, starVBO, 5000);
-
-    // make objects
+    saveLoader saveManager;
+    std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera);
+    std::cout << objs.size();
+    /*// make objects
     std::vector<Object> objs;
     Object sphere("models/sphere.obj");
     Object sphere2("models/sphere.obj");
@@ -76,7 +83,7 @@ int main() {
     objs.push_back(sphere);
     objs.push_back(sphere2);
     //objs.push_back(sphere3);
-    //objs.push_back(plane);
+    //objs.push_back(plane);*/
 
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {

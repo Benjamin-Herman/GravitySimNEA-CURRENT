@@ -86,7 +86,7 @@ bool Object::LoadFromFile(const std::string& filePath) {
         }
     }
     radius = std::sqrt(maxDistSq);
-    std::cout << radius;
+    //std::cout << radius;
     return true;
 }
 

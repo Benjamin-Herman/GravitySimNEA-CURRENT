@@ -26,6 +26,7 @@ public:
     float getMass() { return mass; }
     float getRadius() { return radius; }
     void setType(std::string t) { type = t; }
+    void setMass(float m) { mass = m; }
 
 protected:
     float mass = 1000000000000.0f;

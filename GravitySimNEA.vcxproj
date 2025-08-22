@@ -169,6 +169,7 @@
     <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\object.cpp" />
+    <ClCompile Include="src\saveLoader.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\sphere.cpp" />
     <ClCompile Include="src\windowManager.cpp" />
@@ -181,6 +182,8 @@
     <ClInclude Include="headers\includes.h" />
     <ClInclude Include="headers\inputManager.h" />
     <ClInclude Include="headers\object.h" />
+    <ClInclude Include="headers\Pstring.h" />
+    <ClInclude Include="headers\saveLoader.h" />
     <ClInclude Include="headers\screenData.h" />
     <ClInclude Include="headers\shader.h" />
     <ClInclude Include="headers\sphere.h" />
@@ -279,6 +282,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="postBuild.bat" />
+    <None Include="saves\test.save" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -60,6 +60,9 @@
     <ClCompile Include="includes\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\saveLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\cube.h">
@@ -125,11 +128,18 @@
     <ClInclude Include="headers\gravityManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\saveLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Pstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="postBuild.bat">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="saves\test.save" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="models\sphere.obj" />
