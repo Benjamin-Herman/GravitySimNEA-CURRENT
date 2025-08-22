@@ -17,40 +17,28 @@
 #include "../headers/windowManager.h"
 #include "../headers/saveLoader.h"
 
-
-
-
 std::vector<GLFWwindow*> windows;
 
 // func declarations to access anywhere in file
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // couple globals
-Camera camera(glm::vec3(0.0f, 10.0f, 5.0f), -45.0f, 45.0f);
+//X: 4.18292Y: 81.3964Z: -5.57994
+Camera camera(glm::vec3(4.0f, 80.0f, 5.0f), -85.0f, 45.0f);
 unsigned int starVAO, starVBO;
-
-
 
 int main() {
     //random seed for the stars. no clue why its still in main.cpp
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-
-
     windowManager wm; //create windowmanager instance. activate GLFW and create window
     wm.activateGLFW();
     GLFWwindow* window = wm.createWindow(800, 600);
-    //GLFWwindow* GUIwindow = wm.createWindow(220, 220, "UI WINDOW", window, true);
     windows.push_back(window);
-    //windows.push_back(GUIwindow);
 
     // input callback thingys
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    //GUI window callback things
-    //glfwSetCursorPosCallback(GUIwindow, mouse_callback);
-    //glfwSetInputMode(GUIwindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // enable depth testing
     glEnable(GL_DEPTH_TEST);
@@ -65,25 +53,10 @@ int main() {
 
     // make starsssss
     CreateStarfield(starVAO, starVBO, 5000);
+
     saveLoader saveManager;
-    std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera);
-    std::cout << objs.size();
-    /*// make objects
-    std::vector<Object> objs;
-    Object sphere("models/sphere.obj");
-    Object sphere2("models/sphere.obj");
-    //Object sphere3("models/sphere.obj");
-    Object plane("models/plane.obj");
-    //plane.setPosition(glm::vec3{ 0.0f, -1.0f, 0.0f });
-    sphere2.setVelocity(glm::vec3{ 0.0f, 0.0f, 1.0f });
-    sphere.setVelocity(glm::vec3{ 0.0f, 0.0f, -1.0f });
-    sphere2.setPosition(glm::vec3{ 15.0f, 0.0f, 0.0f });
-    //sphere3.setVelocity(glm::vec3{ 0.0f, -1.0f, 0.0f });
-    //sphere3.setPosition(glm::vec3{ -7.0f, 5.0f, 0.0f });
-    objs.push_back(sphere);
-    objs.push_back(sphere2);
-    //objs.push_back(sphere3);
-    //objs.push_back(plane);*/
+    std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera); //calls the savemanager to load scene
+    //std::cout << objs.size();
 
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
@@ -93,6 +66,7 @@ int main() {
         processInput(window);
         processArrowKeys(window, deltaTime, camera);
         camera.ProcessKeyboard(window, deltaTime);
+        //std::cout << "X: " << camera.Position.x << "Y: " << camera.Position.y << "Z: " << camera.Position.z << "\n";
         gravitySystemUpdate(objs);
         renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
         glfwPollEvents();
@@ -102,13 +76,6 @@ int main() {
     glDeleteVertexArrays(1, &starVAO);
     glDeleteBuffers(1, &starVBO);
     glfwTerminate();
-
-    /*wm.activateGLFW();
-    GLFWwindow* newWindow = wm.createWindow(400, 400, "BYE BYE");
-    while (!glfwWindowShouldClose(newWindow)) {
-        glfwPollEvents();
-    }
-    glfwTerminate();/**/
 
     return 0;
 }

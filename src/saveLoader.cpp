@@ -18,27 +18,27 @@ struct CAM {
 
 saveLoader::saveLoader(){}
 std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& cam) {
-    readFile(savePath); // fills 'lines'
+    readFile(savePath); //reads file and fills the lines vector with data, no returns needed 
 
-    std::vector<Object> SimObjs;
-    std::vector<OBJ> objects;
-    CAM camera{};
+    std::vector<Object> SimObjs; //the list used in the sim itself
+    std::vector<OBJ> objects; //the list of the local struct so I can create the sim obj later
+    CAM camera{}; //camera struct
 
-    bool inObjects = false;
+    bool inObjects = false; //inside which part of the file
     bool inCamera = false;
     OBJ currentObj;
 
-    // Delimiters: split only on ',', '{', '}' — leave ':' and spaces intact for path parsing
+    //a list of all the characters that i want to split by
     std::vector<char> delimiters = { ',', '{', '}', ':'};
 
 
-    for (const std::string& line : lines) {
-        std::vector<std::string> tokens = pystr::split(line, delimiters);
+    for (const std::string& line : lines) { //go line by line
+        std::vector<std::string> tokens = pystr::split(line, delimiters); //split line into vector of usefull tokens
 
         for (std::size_t i = 0; i < tokens.size(); i++) {
             std::string tkn = tokens[i];
             //std::cout << tkn << "\n";
-            if (tkn == "OBJECTS") {
+            if (tkn == "OBJECTS") { //major checks for location in file
                 inObjects = true;
                 inCamera = false;
                 continue;
@@ -55,7 +55,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
             }
 
 
-            else if (tkn == "}") {
+            else if (tkn == "}") { //when the object is finished reading, add to the list
                 if (inObjects && !currentObj.name.empty()) {
                     objects.push_back(currentObj);
                     currentObj = {};
@@ -66,12 +66,12 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
 
             if (inObjects) {
                 if (currentObj.name.empty() && tkn != "LOCATION" && tkn != "POS" && tkn != "VEL" && tkn != "ACC" && tkn != "MASS" && tkn != "{" && tkn != "}" && tkn != ":") {
-                    currentObj.name = tkn;
+                    currentObj.name = tkn; //checked if its the name currently being read
                 }
                 else if (tkn == "LOCATION") {
-                    currentObj.path = tokens[i + 2];
+                    currentObj.path = tokens[i + 2]; 
                 }
-                else if (tkn == "POS") {
+                else if (tkn == "POS") { //creates the vec3 for all these datasets and float for mass
                     glm::vec3 p = glm::vec3{
                         safeStof(tokens[i + 2]),
                         safeStof(tokens[i + 4]),
@@ -97,7 +97,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
                 }
                 else if (tkn == "MASS") {
                     currentObj.mass = stof(tokens[i + 2]);
-                    std::cout << currentObj.mass << "\n";
+                    //std::cout << currentObj.mass << "\n";
                 }
             }
 
@@ -125,7 +125,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
 
 
     }
-    // Convert OBJ structs to Object structs
+    //convert struct data into sim data
     for (OBJ obj : objects) {
         Object temp(obj.path);
         temp.setPosition(obj.pos);
@@ -135,11 +135,11 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
         SimObjs.push_back(temp);
     }
 
-    // Update camera
+    //update camera start values
     //cam.Position = camera.pos;
     //cam.Pitch = camera.pitch;
     //cam.Yaw = camera.yaw;
-    std::cout << SimObjs.size();
+    //std::cout << SimObjs.size();
     return SimObjs;
 }
 

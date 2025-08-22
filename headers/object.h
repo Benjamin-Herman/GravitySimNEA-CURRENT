@@ -2,11 +2,11 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include <string>
+#include "../headers/simData.h"
 
 class Object {
 public:

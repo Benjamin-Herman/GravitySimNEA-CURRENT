@@ -134,6 +134,9 @@
     <ClInclude Include="headers\Pstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\simData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="postBuild.bat">

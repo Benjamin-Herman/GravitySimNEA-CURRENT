@@ -103,8 +103,8 @@ void Object::Update(float dt) {
     }
     //std::cout << "SPHERE: " << acceleration.x << " " << acceleration.y << " " << acceleration.z << "\n";
    
-    position += velocity * dt; 
-    velocity += acceleration * dt;
+    position += velocity * dt * simSpeed; 
+    velocity += acceleration * dt * simSpeed;
 
 
 }

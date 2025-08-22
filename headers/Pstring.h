@@ -20,7 +20,7 @@ namespace pystr {
                 if (c == d) return true;
             }
             return false;
-            };
+        };
 
         for (char c : s) {
             if (isDelimiter(c)) {

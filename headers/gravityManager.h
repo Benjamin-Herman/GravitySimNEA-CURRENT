@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
 #include "object.h"
-const float gravityConstant = 0.0000000000667;
+#include "simData.h"
+
 //BIG NOTE ON PASS BY REFERENCE AND VALUE. TOOK A FEW HOURS TO FIND THAT I NEEDED TO SET ACCELERATION ETC BY REFERENECE NOT VALUE
 void gravitySystemUpdate(std::vector<Object>& objs) {
     //reset all accelerations
