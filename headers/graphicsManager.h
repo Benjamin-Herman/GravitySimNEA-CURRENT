@@ -156,7 +156,7 @@ void renderFrame(std::vector<Object>& objs, std::vector<Shader>& shaders, float 
         glm::radians(45.0f), //internet maths
         (float)width / (float)height,
         0.1f,
-        100.0f
+        10000.0f
     );
     glEnable(GL_PROGRAM_POINT_SIZE);
     // draw stars with no depth test

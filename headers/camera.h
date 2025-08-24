@@ -31,9 +31,9 @@ public:
     float Yaw;
     float Pitch;
     float HeightSpeed;
-
-private:
     void updateCameraVectors();
+private:
+    
 };
 
 #endif

@@ -136,10 +136,11 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
     }
 
     //update camera start values
-    //cam.Position = camera.pos;
-    //cam.Pitch = camera.pitch;
-    //cam.Yaw = camera.yaw;
-    //std::cout << SimObjs.size();
+    cam.Position = camera.pos;
+    cam.Pitch = camera.pitch;
+    cam.Yaw = camera.yaw;
+    std::cout << SimObjs.size();
+    cam.updateCameraVectors();
     return SimObjs;
 }
 

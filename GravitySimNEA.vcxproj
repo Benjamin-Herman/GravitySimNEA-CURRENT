@@ -167,6 +167,7 @@
     <ClCompile Include="includes\imgui_widgets.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\cube.cpp" />
+    <ClCompile Include="src\gravityMain.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\object.cpp" />
     <ClCompile Include="src\saveLoader.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="headers\camera.h" />
     <ClInclude Include="headers\cube.h" />
     <ClInclude Include="headers\graphicsManager.h" />
+    <ClInclude Include="headers\gravityMain.h" />
     <ClInclude Include="headers\gravityManager.h" />
     <ClInclude Include="headers\includes.h" />
     <ClInclude Include="headers\inputManager.h" />
