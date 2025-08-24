@@ -12,9 +12,9 @@
 #include "../headers/screenData.h"
 #include <algorithm>
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+//#include "imgui.h"
+//#include "imgui_impl_glfw.h"
+//#include "imgui_impl_opengl3.h"
 
 bool imGUI = true;
 
@@ -108,7 +108,7 @@ void CreateStarfield(unsigned int& VAO, unsigned int& VBO, int starCount) {
     glBindVertexArray(0);
 }
 
-void renderImGUIWindow(GLFWwindow* window) {
+/*void renderImGUIWindow(GLFWwindow* window) {
     //seperate window rendering here
     glfwMakeContextCurrent(window);
 
@@ -137,7 +137,7 @@ void renderImGUIWindow(GLFWwindow* window) {
     glfwSwapBuffers(window);
    
     
-}
+}*/
 
 void renderFrame(std::vector<Object>& objs, std::vector<Shader>& shaders, float deltaTime, Camera& camera, unsigned int starVAO, unsigned int starVBO, std::vector<GLFWwindow*> windows) {
     GLFWwindow* window = windows[0];

@@ -9,9 +9,9 @@
 #include <vector>
 
 #include "../headers/gravityManager.h"
-#include "../headers/includes.h"
-#include "../headers/cube.h"
-#include "../headers/sphere.h"
+//#include "../headers/includes.h"
+//#include "../headers/cube.h"
+//#include "../headers/sphere.h"
 #include "../headers/shader.h"
 #include "../headers/camera.h"
 #include "../headers/graphicsManager.h"
@@ -24,7 +24,7 @@
 // END OF INCLUDES
 
 
-class gravitySimMain {
+class gravityMain {
 public:
     
     std::vector<GLFWwindow*> windows;
@@ -37,8 +37,7 @@ public:
     Camera camera;
     unsigned int starVAO, starVBO;
 
-    int gravityMain();
-    gravitySimMain() {};
+    int gravitySimMain();
 private:
 };
 

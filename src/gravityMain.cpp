@@ -2,7 +2,7 @@
 
 
 
-int gravitySimMain::gravityMain() {
+int gravityMain::gravitySimMain() {
     // random seed for the stars
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -58,9 +58,9 @@ int gravitySimMain::gravityMain() {
 }
 
 
-void gravitySimMain::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+void gravityMain::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     //get class instance from user pointer - basically make sure i call function on the right part of memeory
-    auto* self = static_cast<gravitySimMain*>(glfwGetWindowUserPointer(window));
+    auto* self = static_cast<gravityMain*>(glfwGetWindowUserPointer(window));
     if (self) {
         // call the function elsewhere. needed this for openGL cheats
         mouseInput(window, xpos, ypos, self->camera);
