@@ -170,6 +170,7 @@
     <ClCompile Include="src\gravityMain.cpp" />
     <ClCompile Include="src\inputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\mainMenuMain.cpp" />
     <ClCompile Include="src\object.cpp" />
     <ClCompile Include="src\saveLoader.cpp" />
     <ClCompile Include="src\shader.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="headers\gravityManager.h" />
     <ClInclude Include="headers\includes.h" />
     <ClInclude Include="headers\inputManager.h" />
+    <ClInclude Include="headers\mainMenuMain.h" />
     <ClInclude Include="headers\object.h" />
     <ClInclude Include="headers\Pstring.h" />
     <ClInclude Include="headers\saveLoader.h" />

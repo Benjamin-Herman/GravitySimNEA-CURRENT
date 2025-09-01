@@ -1,14 +1,19 @@
 #include "../headers/gravityMain.h"
 
 
+//windowManager window_Manager; // create windowindow_Manageranager instance. 
+graphicsManager graphics_Manager;
+physicsManager physics_Manager;
+inputManager input_Manager;
+saveLoader saveManager;
 
 int gravityMain::gravitySimMain() {
     // random seed for the stars
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
-    windowManager wm; // create windowmanager instance. activate GLFW and create window
-    wm.activateGLFW();
-    GLFWwindow* window = wm.createWindow(800, 600);
+    //activate GLFW and create window
+    window_Manager.activateGLFW();
+    GLFWwindow* window = window_Manager.createWindow(800, 600);
     windows.push_back(window);
 
     // store this instance for use in the static callback
@@ -29,9 +34,10 @@ int gravityMain::gravitySimMain() {
     shaders.push_back(starShader);
 
     // make starsssss
-    CreateStarfield(starVAO, starVBO, 5000);
 
-    saveLoader saveManager;
+    graphics_Manager.CreateStarfield(starVAO, starVBO, 5000);
+
+
     std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera); // calls the savemanager to load scene
     //std::cout << objs.size();
 
@@ -39,13 +45,13 @@ int gravityMain::gravitySimMain() {
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
         float deltaTime = Time::DeltaTime(); // get delta time
         // process input commands. basically say i call youuu
-        wm.showFPS();
-        processInput(window);
-        processArrowKeys(window, deltaTime, camera);
+        window_Manager.showFPS();
+        input_Manager.processInput(window);
+        input_Manager.processArrowKeys(window, deltaTime, camera);
         camera.ProcessKeyboard(window, deltaTime);
         //std::cout << "X: " << camera.Position.x << "Y: " << camera.Position.y << "Z: " << camera.Position.z << "\n";
-        gravitySystemUpdate(objs);
-        renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
+        physics_Manager.gravitySystemUpdate(objs);
+        graphics_Manager.renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
         glfwPollEvents();
     }
 
@@ -63,6 +69,6 @@ void gravityMain::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     auto* self = static_cast<gravityMain*>(glfwGetWindowUserPointer(window));
     if (self) {
         // call the function elsewhere. needed this for openGL cheats
-        mouseInput(window, xpos, ypos, self->camera);
+        input_Manager.mouseInput(window, xpos, ypos, self->camera);
     }
 }

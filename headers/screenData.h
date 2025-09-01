@@ -2,9 +2,11 @@
 #ifndef SCREEN_DATA_H
 #define SCREEN_DATA_H
 
+namespace screenData {
+	inline const unsigned int width = 800; // unsigned so cannot be negative. const because it doesnt need to change
+	inline const unsigned int height = 600;
+	//inline const char* screenName = "Gravity Simulator"; //pointer to this data
+};
 
-const unsigned int width = 800; // unsigned so cannot be negative. const because it doesnt need to change
-const unsigned int height = 600;
-inline const char* screenName = "Gravity Simulator"; //pointer to this data
 
 #endif

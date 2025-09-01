@@ -8,8 +8,14 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+windowManager window_Manager;
+
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height); //just base class to return of null
+}
+
+bool windowManager::glfwActive(){
+    return (window && !glfwWindowShouldClose(window));
 }
 
 void windowManager::activateGLFW() {
@@ -35,7 +41,7 @@ void windowManager::showFPS() {
     if (elapsed.count() >= 0.2) {
         double fps = frameCount / elapsed.count();
 
-        std::string fpsStr = std::string(screenName) + " | FPS: " + std::to_string(fps);
+        std::string fpsStr = std::string(/*screenData::screenName*/ "Gravity Simulator") + " | FPS: " + std::to_string(fps);
         const char* cstr = fpsStr.c_str();
 
         glfwSetWindowTitle(window, fpsStr.c_str());

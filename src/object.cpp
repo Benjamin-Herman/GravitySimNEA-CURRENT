@@ -5,6 +5,9 @@
 #include <iostream>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+
+
+
 Object::Object(const std::string& objFilePath) : position(0.0f, 0.0f, 0.0f), rotationAngle(0.0f) {
     //try to load from OBJ file and if not fall back to cube
     if (!LoadFromFile(objFilePath)) {
@@ -103,8 +106,8 @@ void Object::Update(float dt) {
     }
     //std::cout << "SPHERE: " << acceleration.x << " " << acceleration.y << " " << acceleration.z << "\n";
    
-    position += velocity * dt * simSpeed; 
-    velocity += acceleration * dt * simSpeed;
+    position += velocity * dt * simData::simSpeed;
+    velocity += acceleration * dt * simData::simSpeed;
 
 
 }

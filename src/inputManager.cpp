@@ -1,14 +1,15 @@
 #include "../headers/inputManager.h"
 
+
 //globals for mouse tracking
-float lastX = width / 2.0f; //middle of the screen
-float lastY = height / 2.0f;
+float lastX = screenData::width / 2.0f; //middle of the screen
+float lastY = screenData::height / 2.0f;
 bool firstMouse = true;
 bool mouseDisabled = false;
 
 
 //arrow key rotate keybind
-void processArrowKeys(GLFWwindow* window, float deltaTime, Camera& camera) {
+void inputManager::processArrowKeys(GLFWwindow* window, float deltaTime, Camera& camera) {
     float sensitivity = 50.0f * deltaTime; //trial and error got to 50
 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) { //if left key then rotate left
@@ -26,7 +27,7 @@ void processArrowKeys(GLFWwindow* window, float deltaTime, Camera& camera) {
 }
 
 //check ESC and mouse button input
-void processInput(GLFWwindow* window) {
+void inputManager::processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { //check escape input
         //glfwSetWindowShouldClose(window, true); //close window
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -41,7 +42,7 @@ void processInput(GLFWwindow* window) {
 }
 
 //process mouse movement
-void mouseInput(GLFWwindow* window, double xpos, double ypos, Camera& camera) {
+void inputManager::mouseInput(GLFWwindow* window, double xpos, double ypos, Camera& camera) {
     if (mouseDisabled) { //ignore input if mouse disabled
         return;
     }

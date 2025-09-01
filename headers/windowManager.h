@@ -3,7 +3,7 @@
 #define WINDOW_MANAGER_H
 
 #include "../headers/includes.h"
-#include "../headers/screenData.h"
+//#include "../headers/screenData.h"
 #include <chrono>
 //#include <GLFW/glfw3.h>
 
@@ -11,6 +11,7 @@
 
 class windowManager {
 public:
+    bool glfwActive();
     void activateGLFW(); //actiavtes all glfw stuff
     void showFPS();
     GLFWwindow* createWindow(unsigned int width = 800, unsigned int height = 600,
@@ -19,5 +20,7 @@ public:
 private:
     GLFWwindow* window; //window stored as pointer
 };
+
+extern class windowManager window_Manager;
 
 #endif
