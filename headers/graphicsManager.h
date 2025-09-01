@@ -18,6 +18,9 @@
 
 
 class graphicsManager {
+private:
+    int width;
+    int height;
 public:
     bool imGUI = true;
 
@@ -153,11 +156,11 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
+        glfwGetWindowSize(window, &width, &height);
         // make projection so the view is like you eyes
         glm::mat4 projection = glm::perspective(
             glm::radians(45.0f), //internet maths
-            (float)screenData::width / (float)screenData::height,
+            (float)width / (float)height,
             0.1f,
             10000.0f
         );

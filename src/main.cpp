@@ -6,7 +6,7 @@ void gravityWindow();
 void userInterface();
 
 int main() {
-    mainMenu();
+    gravityWindow();
     return 0;
 }
 

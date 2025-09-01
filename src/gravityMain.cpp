@@ -23,6 +23,9 @@ int gravityMain::gravitySimMain() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+
+
+
     // enable depth testing
     glEnable(GL_DEPTH_TEST);
 

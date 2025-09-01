@@ -14,10 +14,6 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height); //just base class to return of null
 }
 
-bool windowManager::glfwActive(){
-    return (window && !glfwWindowShouldClose(window));
-}
-
 void windowManager::activateGLFW() {
     // GLFW init
     if (!glfwInit()) {
@@ -40,8 +36,8 @@ void windowManager::showFPS() {
 
     if (elapsed.count() >= 0.2) {
         double fps = frameCount / elapsed.count();
-
-        std::string fpsStr = std::string(/*screenData::screenName*/ "Gravity Simulator") + " | FPS: " + std::to_string(fps);
+        
+        std::string fpsStr = std::string(name) + " | FPS: " + std::to_string(fps);
         const char* cstr = fpsStr.c_str();
 
         glfwSetWindowTitle(window, fpsStr.c_str());
@@ -74,11 +70,13 @@ GLFWwindow* windowManager::createWindow(unsigned int width, unsigned int height,
     // Only initialize context for main window
     if (!share) {
         glfwMakeContextCurrent(window);
+        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             glfwTerminate();
             throw std::runtime_error("GLAD initialization failed");
         }
     }
+    name = glfwGetWindowTitle(window);
     //glfwSwapInterval(0);
     return window;
 }
