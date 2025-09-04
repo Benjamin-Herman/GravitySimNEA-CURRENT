@@ -1,44 +1,44 @@
-#ifndef GUI_H
-#define GUI_H
-
-#include <glad/glad.h>   // Must come before GLFW
-#include <glm/glm.hpp>
+#pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <string>
+#include "stb_truetype.h"
 #include "shader.h"
-#include "stb_truetype.h" // Just the header, no implementation macro here
+#include <glm/glm.hpp>
 
 class GUI {
 public:
-    GUI(int width, int height);
+    GUI();
     ~GUI();
 
-    void loadFont(const char* fontPath);
-    void renderText(const std::string& text, float x, float y, float scale, float r, float g, float b);
+    bool loadFont(const char* ttf_path, float pixel_height);
+    void renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour);
+    void updateSize(GLFWwindow* window);
+    void renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType = "rectangle");
+    void renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset, void* command);
+    struct anchors {
+        glm::vec2 middleMiddle;
+        glm::vec2 topMiddle;
+        glm::vec2 bottomMiddle;
 
-    void bindFramebuffer();
-    void unbindFramebuffer();
+        glm::vec2 middleLeft;
+        glm::vec2 topLeft;
+        glm::vec2 bottomLeft;
 
-    GLuint getTexture() const { return texture; }
-    GLuint getQuadVAO() const { return quadVAO; }
+        glm::vec2 middleRight;
+        glm::vec2 topRight;
+        glm::vec2 bottomRight;
+    };
+    anchors _anchors;
+
 
 private:
-    int windowWidth, windowHeight;
+    GLuint fontTexture;
+    GLuint VAO, VBO;
+    stbtt_bakedchar cdata[96]; //ascci character set
 
-    GLuint fbo = 0;
-    GLuint texture = 0;
-    GLuint rbo = 0;
-
-    GLuint quadVAO = 0;
-    GLuint quadVBO = 0;
-
-    GLuint fontTexture = 0;
-    stbtt_bakedchar cdata[96];
-
-    Shader* guiShader = nullptr;
-
-    void initFramebuffer();
-    void initQuad();
-    void initShader();
+    Shader* shader;
+    glm::mat4 projection;
+    float screenHeight;
+    Shader* shapeShader;
 };
-
-#endif // GUI_H

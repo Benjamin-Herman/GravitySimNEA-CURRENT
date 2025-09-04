@@ -1,157 +1,209 @@
+
 #include "../headers/GUI.h"
-#include <iostream>
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "../headers/stb_truetype.h"
+
+
 #include <fstream>
+#include <vector>
+#include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "../headers/stb_truetype.h" // only here, never in header
-
-
-
-GUI::GUI(int width, int height) : windowWidth(width), windowHeight(height) {
-    initFramebuffer();
-    initQuad();
-    initShader();
-}
-
-GUI::~GUI() {
-    glDeleteFramebuffers(1, &fbo);
-    glDeleteTextures(1, &texture);
-    glDeleteRenderbuffers(1, &rbo);
-    glDeleteVertexArrays(1, &quadVAO);
-    glDeleteBuffers(1, &quadVBO);
-    glDeleteTextures(1, &fontTexture);
-    delete guiShader;
-}
-
-void GUI::initFramebuffer() {
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cerr << "ERROR: GUI framebuffer not complete!" << std::endl;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void GUI::initQuad() {
-    float quadVertices[] = {
-        // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-    };
-
-    glGenVertexArrays(1, &quadVAO);
-    glGenBuffers(1, &quadVBO);
-
-    glBindVertexArray(quadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+GUI::GUI() {
+    // VAO and VBO init
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    // Load text shader
+    shader = new Shader("shaders/textShader.vert", "shaders/textShader.frag");
 
-    glBindVertexArray(0);
-}
+    // Load shape shader
+    shapeShader = new Shader("shaders/shapeShader.vert", "shaders/shapeShader.frag");
 
-void GUI::initShader() {
-    guiShader = new Shader("shaders/GUI.vert", "shaders/GUI.frag");
-}
-
-void GUI::bindFramebuffer() {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glViewport(0, 0, windowWidth, windowHeight);
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void GUI::unbindFramebuffer() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Projection to match standard window size
+    projection = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
+    shader->Use();
+    shader->SetMat4("projection", projection);
+    shapeShader->Use();
+    shapeShader->SetMat4("projection", projection);
 }
 
 
-void GUI::loadFont(const char* fontPath) {
-    std::ifstream file(fontPath, std::ios::binary | std::ios::ate);
+GUI::~GUI() {
+    glDeleteVertexArrays(1, &VAO); //delete all vertex and buffers
+    glDeleteBuffers(1, &VBO);
+    glDeleteTextures(1, &fontTexture);
+    if (shader) {
+        delete shader; //if called and this exists, delete cuz its the delety thingy
+    }
+    if (shapeShader) {
+        delete shapeShader; //if called and this exists, delete cuz its the delety thingy
+    }
+}
+
+bool GUI::loadFont(const char* ttf_path, float pixel_height) {
+    std::ifstream file(ttf_path, std::ios::binary); //take code in
     if (!file.is_open()) {
-        std::cerr << "Failed to open font file: " << fontPath << std::endl;
-        return;
+        return false;
     }
 
-    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::end); //goes to end to see the end pretty dumb
+    size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    unsigned char* buffer = new unsigned char[size];
-    if (!file.read((char*)buffer, size)) {
-        std::cerr << "Failed to read font file" << std::endl;
-        delete[] buffer;
-        return;
+    //makes buffers for them all
+    std::vector<unsigned char> ttf_buffer(size);
+    file.read((char*)ttf_buffer.data(), size);
+
+    //making the image in code
+    const int bitmapWidth = 512;
+    const int bitmapHeight = 512;
+    std::vector<unsigned char> bitmap(bitmapWidth * bitmapHeight);
+
+    //some library stuff
+    if (stbtt_BakeFontBitmap(ttf_buffer.data(), 0, pixel_height, bitmap.data(), bitmapWidth, bitmapHeight, 32, 96, cdata) <= 0) {
+        std::cout << "Failed to bake font\n";
+        return false;
     }
-
-    const int atlasWidth = 512;
-    const int atlasHeight = 512;
-    unsigned char* bitmap = new unsigned char[atlasWidth * atlasHeight];
-
-    stbtt_BakeFontBitmap(buffer, 0, 32.0f, bitmap, atlasWidth, atlasHeight, 32, 96, cdata);
-
+    //magic texture creation tools. again library documentation here. i get it but i dont get the code
     glGenTextures(1, &fontTexture);
     glBindTexture(GL_TEXTURE_2D, fontTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlasWidth, atlasHeight, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmapWidth, bitmapHeight, 0, GL_RED, GL_UNSIGNED_BYTE, bitmap.data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    delete[] buffer;
-    delete[] bitmap;
+    return true;
 }
 
-void GUI::renderText(const std::string& text, float x, float y, float scale, float r, float g, float b) {
-    guiShader->Use();
-    guiShader->SetVec3("textColor", glm::vec3(r, g, b));
+void GUI::renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour) {
+    float r = colour.x;
+    float g = colour.y;
+    float b = colour.z; //splits vec3 into 3 floats
 
+    float x = coord.x;
+    float y = coord.y;
+    
+    shader->Use();
+    shader->SetVec3("textColor", glm::vec3(r, g, b));
     glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, fontTexture);
 
-    float xpos = x;
-    float ypos = y;
+    float xpos, ypos, w, h;
+    float vertices[6][4];
 
     for (char c : text) {
-        if (c < 32 || c > 126) continue;
+        if (c < 32 || c >= 128) { //not in the right character set
+            continue;
+        }
 
-        stbtt_aligned_quad q;
-        stbtt_GetBakedQuad(cdata, 512, 512, c - 32, &xpos, &ypos, &q, 1);
+        stbtt_bakedchar* b = cdata + (c - 32); //shifting to get right data
 
-        glm::mat4 model = glm::mat4(1.0f);
+        xpos = x + b->xoff * scale;
+        ypos = screenHeight - y - (b->yoff * scale); //invert for top left origin because thats how this works
+        w = b->x1 - b->x0;
+        h = b->y1 - b->y0;
 
-        float ndcX = (q.x0 / (float)windowWidth) * 2.0f - 1.0f;
-        float ndcY = 1.0f - (q.y1 / (float)windowHeight) * 2.0f;
-        float width = (q.x1 - q.x0) / (windowWidth / 2.0f);
-        float height = (q.y1 - q.y0) / (windowHeight / 2.0f);
+        //6 verticies per quad
+        vertices[0][0] = xpos;     vertices[0][1] = ypos;     vertices[0][2] = b->x0 / 512.0f; vertices[0][3] = b->y0 / 512.0f;
+        vertices[1][0] = xpos + w; vertices[1][1] = ypos;     vertices[1][2] = b->x1 / 512.0f; vertices[1][3] = b->y0 / 512.0f;
+        vertices[2][0] = xpos;     vertices[2][1] = ypos - h; vertices[2][2] = b->x0 / 512.0f; vertices[2][3] = b->y1 / 512.0f;
 
-        model = glm::translate(model, glm::vec3(ndcX, ndcY, 0.0f));
-        model = glm::scale(model, glm::vec3(width, height, 1.0f));
+        vertices[3][0] = xpos + w; vertices[3][1] = ypos;     vertices[3][2] = b->x1 / 512.0f; vertices[3][3] = b->y0 / 512.0f;
+        vertices[4][0] = xpos + w; vertices[4][1] = ypos - h; vertices[4][2] = b->x1 / 512.0f; vertices[4][3] = b->y1 / 512.0f;
+        vertices[5][0] = xpos;     vertices[5][1] = ypos - h; vertices[5][2] = b->x0 / 512.0f; vertices[5][3] = b->y1 / 512.0f;
 
-        guiShader->SetMat4("model", model);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
-        glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        //makes it so that its the right size
+        x += b->xadvance * scale;
     }
 }
+
+void GUI::updateSize(GLFWwindow* window){
+    int height, width; //creates variables for function call next code
+    
+    glfwGetWindowSize(window, &width, &height);
+    screenHeight = height;
+    projection = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height)); //origin
+    shader->Use(); //use the stuff
+    shader->SetMat4("projection", projection);
+    float fHeight = static_cast<float>(height);
+    float fWidth = static_cast<float>(width);
+    //plus anchor stuff
+
+    //bottom
+    _anchors.bottomLeft = glm::vec2{ 0, fHeight };
+    _anchors.bottomMiddle = glm::vec2{ fWidth / 2, fHeight };
+    _anchors.bottomRight = glm::vec2{ fWidth, fHeight };
+
+    //middle
+    _anchors.middleLeft = glm::vec2{ 0, fHeight / 2};
+    _anchors.middleMiddle = glm::vec2{ fWidth / 2, fHeight / 2 };
+    _anchors.middleRight = glm::vec2{ fWidth, fHeight / 2};
+
+    //top
+    _anchors.topLeft = glm::vec2{ 0, 0 };
+    _anchors.topMiddle = glm::vec2{ fWidth / 2, 0 };
+    _anchors.topRight = glm::vec2{ fWidth, 0 };
+}
+
+void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType) {
+    shapeShader->Use();
+    shapeShader->SetMat4("projection", projection); // same as text shader
+    shapeShader->SetVec3("shapeColor", colour);
+
+    float x = coord.x;
+    float y = coord.y; // coordinates already in top-left origin
+    float w = size.x;
+    float h = size.y;
+
+    // 6 vertices for two triangles, 4 floats per vertex (x,y,u,v) to match VAO layout
+    float vertices[6][4] = {
+        { x,     y,     0.0f, 0.0f },
+        { x + w, y,     0.0f, 0.0f },
+        { x + w, y + h, 0.0f, 0.0f },
+
+        { x,     y,     0.0f, 0.0f },
+        { x + w, y + h, 0.0f, 0.0f },
+        { x,     y + h, 0.0f, 0.0f }
+    };
+
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    // Optional: template for other shapes
+    /*
+    if(shapeType == "triangle") {
+        // compute triangle vertices in top-left ortho
+    }
+    else if(shapeType == "circle") {
+        // generate circle vertices in top-left ortho
+    }
+    */
+}
+
+
+
+
+void GUI::renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset, void* command) {
+    // Render the button rectangle with ShapeShader
+    renderShape(coord, btnSize, colour, "rectangle");
+
+    // Render the text on top of the button
+    glm::vec2 textPos = coord + txtOffset; // small offset from bottom-left
+    renderText(text, textPos, fontScale, fontColour);
+}
+
+

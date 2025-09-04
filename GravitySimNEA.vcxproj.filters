@@ -164,8 +164,10 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="saves\test.save" />
-    <None Include="shaders\GUI.vert" />
-    <None Include="shaders\GUI.frag" />
+    <None Include="shaders\textShader.vert" />
+    <None Include="shaders\textShader.frag" />
+    <None Include="shaders\shapeShader.vert" />
+    <None Include="shaders\shapeShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="models\sphere.obj" />

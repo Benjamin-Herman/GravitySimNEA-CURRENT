@@ -296,8 +296,10 @@
   <ItemGroup>
     <None Include="postBuild.bat" />
     <None Include="saves\test.save" />
-    <None Include="shaders\GUI.frag" />
-    <None Include="shaders\GUI.vert" />
+    <None Include="shaders\textShader.frag" />
+    <None Include="shaders\textShader.vert" />
+    <None Include="shaders\shapeShader.frag" />
+    <None Include="shaders\shapeShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

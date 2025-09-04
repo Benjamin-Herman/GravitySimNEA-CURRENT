@@ -1,54 +1,53 @@
 #include "../headers/mainMenuMain.h"
 #include "../headers/windowManager.h"
 #include "../headers/GUI.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <vector>
 
 int mainMenuClass::mainMenuCall() {
-    // Initialize window manager
-    window_Manager.activateGLFW();
-    GLFWwindow* window = window_Manager.createWindow(800, 600, "MAIN MENU");
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
+    window_Manager.activateGLFW(); //activate glfw
+    GLFWwindow* window = window_Manager.createWindow(800, 600, "MAIN MENU"); 
+    if (!window) {
         return -1;
     }
 
-    // Enable alpha blending for GUI text
-    glEnable(GL_BLEND);
+    glEnable(GL_BLEND); //allows to blend over 3d viewport
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Initialize GUI
-    GUI* gui = new GUI(800, 600);
-    gui->loadFont("fonts/Freedom-10eM.ttf"); // adjust path
-
-    // Main loop
+    GUI gui;
+    if (!gui.loadFont("fonts/font2.ttf", 48.0f)) { //loads font
+        std::cout << "Failed to load font\n";
+        return -1;
+    }
+    int Cwidth, Cheight; //C stands for current
+    glm::vec2 middle;
+    glm::vec2 topMiddle;
+    
+    GUI::anchors _anchors;
+    
     while (!glfwWindowShouldClose(window)) {
-        // Clear default framebuffer for 3D scene
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, 800, 600);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        std::vector<glm::vec2> anchors;
+        _anchors = gui._anchors;
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //clears the backround
+        glClear(GL_COLOR_BUFFER_BIT);
+        glfwGetWindowSize(window, &Cwidth, &Cheight);
+        
+        glm::vec2 titleOffset = { 120.f, -100.f };
+        glm::vec2 btnOffset = { 140.f, -300.f };
+        glm::vec2 txt2Offset = { 230.f, 100.f };
+        //TITLE TEXT
+        gui.renderText("MAIN MENU", _anchors.topMiddle - titleOffset, 1.0f, glm::vec3{1.f}); //text to render
+        //EXIT TEXT
+        gui.renderText("Press ESC to quit", _anchors.bottomMiddle - txt2Offset, 1.0f, glm::vec3{ 1.f });
 
-        // --- PLACEHOLDER: render your 3D scene here ---
-        // TODO: your 3D rendering code
-
-        // Render GUI to its framebuffer
-        gui->bindFramebuffer();
-        gui->renderText("Hello GUI!", 50, 50, 1.0f, 1.0f, 1.0f, 1.0f);
-        gui->unbindFramebuffer();
-
-        // Draw GUI FBO texture on top of 3D scene
-        glDisable(GL_DEPTH_TEST); // GUI on top
-        glBindTexture(GL_TEXTURE_2D, gui->getTexture());
-        glBindVertexArray(gui->getQuadVAO());
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glEnable(GL_DEPTH_TEST);
-
-        // Swap buffers and poll events
+        gui.renderButton("I AM BUTTON", _anchors.topMiddle - btnOffset, 1.0f, glm::vec3{ 1.f }, glm::vec2{ 350.f, 75.f }, glm::vec3{ 1.f, 0.f, 0.f }, glm::vec2{ 15.f, -22.f }, nullptr);
+        gui.updateSize(window); //updates size so that everything works with resizing
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    delete gui;
     glfwTerminate();
     return 0;
 }
