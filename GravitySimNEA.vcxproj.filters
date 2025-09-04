@@ -30,9 +30,6 @@
     <ClCompile Include="src\camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="headers\windowManager.h">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\mainMenuMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,12 +152,20 @@
     <ClInclude Include="headers\mainMenuMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="headers\windowManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\GUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="postBuild.bat">
       <Filter>Source Files</Filter>
     </None>
     <None Include="saves\test.save" />
+    <None Include="shaders\GUI.vert" />
+    <None Include="shaders\GUI.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="models\sphere.obj" />

@@ -167,6 +167,7 @@
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\cube.cpp" />
     <ClCompile Include="src\gravityMain.cpp" />
+    <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\inputManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\mainMenuMain.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="headers\graphicsManager.h" />
     <ClInclude Include="headers\gravityMain.h" />
     <ClInclude Include="headers\gravityManager.h" />
+    <ClInclude Include="headers\GUI.h" />
     <ClInclude Include="headers\includes.h" />
     <ClInclude Include="headers\inputManager.h" />
     <ClInclude Include="headers\mainMenuMain.h" />
@@ -294,6 +296,8 @@
   <ItemGroup>
     <None Include="postBuild.bat" />
     <None Include="saves\test.save" />
+    <None Include="shaders\GUI.frag" />
+    <None Include="shaders\GUI.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
