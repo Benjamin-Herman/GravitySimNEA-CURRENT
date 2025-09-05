@@ -29,21 +29,22 @@ int mainMenuClass::mainMenuCall() {
     
     while (!glfwWindowShouldClose(window)) {
         std::vector<glm::vec2> anchors;
+        gui.updateSize(window); //updates size so that everything works with resizing
         _anchors = gui._anchors;
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //clears the backround
         glClear(GL_COLOR_BUFFER_BIT);
         glfwGetWindowSize(window, &Cwidth, &Cheight);
         
         glm::vec2 titleOffset = { 120.f, -100.f };
-        glm::vec2 btnOffset = { 140.f, -300.f };
+        glm::vec2 btnOffset = { 140.f, -150.f };
         glm::vec2 txt2Offset = { 230.f, 100.f };
         //TITLE TEXT
         gui.renderText("MAIN MENU", _anchors.topMiddle - titleOffset, 1.0f, glm::vec3{1.f}); //text to render
         //EXIT TEXT
-        gui.renderText("Press ESC to quit", _anchors.bottomMiddle - txt2Offset, 1.0f, glm::vec3{ 1.f });
+        //gui.renderText("Press ESC to quit", _anchors.bottomMiddle - txt2Offset, 1.0f, glm::vec3{ 1.f });
+        //BUTTON
+        gui.renderButton("I AM BUTTON", _anchors.topMiddle - btnOffset, 1.0f, glm::vec3{ 1.f }, glm::vec2{ 350.f, 75.f }, glm::vec3{ 1.f, 0.f, 0.f }, glm::vec2{ 10.f, 50.f }, nullptr);
 
-        gui.renderButton("I AM BUTTON", _anchors.topMiddle - btnOffset, 1.0f, glm::vec3{ 1.f }, glm::vec2{ 350.f, 75.f }, glm::vec3{ 1.f, 0.f, 0.f }, glm::vec2{ 15.f, -22.f }, nullptr);
-        gui.updateSize(window); //updates size so that everything works with resizing
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

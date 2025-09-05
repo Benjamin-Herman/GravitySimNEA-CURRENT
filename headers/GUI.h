@@ -41,4 +41,6 @@ private:
     glm::mat4 projection;
     float screenHeight;
     Shader* shapeShader;
+
+    glm::vec2 btnCoords[4];
 };
