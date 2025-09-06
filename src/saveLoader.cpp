@@ -150,7 +150,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
 void saveLoader::readFile(std::string path){
     std::ifstream file(path); //open file
     if (!file) { //check if open ok
-        std::cerr << "Error opening file!" << std::endl;
+        std::cerr << "Error opening save file!" << std::endl;
     }
 
     std::string line;

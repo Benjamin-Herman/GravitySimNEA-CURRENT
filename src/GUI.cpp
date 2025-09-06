@@ -2,14 +2,16 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "../headers/stb_truetype.h"
 
-
 #include <fstream>
 #include <vector>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-GUI::GUI() {
-    // VAO and VBO init
+bool overBtn = false;
+
+GUI::GUI(GLFWwindow* win) {
+    //VAO and VBO init
+    _window = win;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -19,18 +21,19 @@ GUI::GUI() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
-    // Load text shader
+    //load text shader
     shader = new Shader("shaders/textShader.vert", "shaders/textShader.frag");
 
-    // Load shape shader
+    //load shape shader
     shapeShader = new Shader("shaders/shapeShader.vert", "shaders/shapeShader.frag");
 
-    // Projection to match standard window size
+    //projection to match standard window size
     projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);
     shader->Use();
     shader->SetMat4("projection", projection);
     shapeShader->Use();
     shapeShader->SetMat4("projection", projection);
+    //glfwSetMouseButtonCallback(_window, mouse_button_callback);
 }
 
 
@@ -153,19 +156,21 @@ void GUI::updateSize(GLFWwindow* window) {
     _anchors.topLeft = glm::vec2{ 0, 0 };
     _anchors.topMiddle = glm::vec2{ fWidth / 2, 0 };
     _anchors.topRight = glm::vec2{ fWidth, 0 };
+
+    glfwGetCursorPos(window, &mouseCoord[0], &mouseCoord[1]);
 }
 
 void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType) {
     shapeShader->Use();
-    shapeShader->SetMat4("projection", projection); // same as text shader
+    shapeShader->SetMat4("projection", projection);
     shapeShader->SetVec3("shapeColor", colour);
 
     float x = coord.x;
-    float y = coord.y; // coordinates already in top-left origin
+    float y = coord.y; //coordinates already in top-left origin
     float w = size.x;
     float h = size.y;
 
-    // 6 vertices for two triangles, 4 floats per vertex (x,y,u,v) to match VAO layout
+    //6 vertices for two triangles, 4 floats per vertex (x,y,u,v) to match VAO layout
     float vertices[6][4] = {
         { x,     y,     0.0f, 0.0f },
         { x + w, y,     0.0f, 0.0f },
@@ -193,32 +198,69 @@ void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::st
     */
 }
 
+bool GUI::isMouseOver(glm::vec2 pos, glm::vec2 size) {
+    return mouseCoord[0] > pos.x &&
+        mouseCoord[0] < pos.x + size.x &&
+        mouseCoord[1] > pos.y &&
+        mouseCoord[1] < pos.y + size.y;
+}
 
+bool GUI::wasMousePressed(int button) {
+    return glfwGetMouseButton(_window, button) == GLFW_PRESS;
+}
 
+button::button(GUI* g) : gui(g) {}
 
+button::~button() {
+}
 
+void button::setOnClick(std::function<void()> callback) {
+    onClick = callback;
+}
 
-void GUI::renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset, void* command) {
+void button::renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset) {
     //render shape
-
-    renderShape(coord, btnSize, colour, "rectangle");
-
-    glm::vec2 rectTopLeft = coord;
+    //glm::vec2 rectTopLeft = coord;
     glm::vec2 rectTopRight = coord + glm::vec2(btnSize.x, 0);
     glm::vec2 rectBottomLeft = coord + glm::vec2(0, btnSize.y);
-    glm::vec2 rectBottomRight = coord + btnSize;
+    //glm::vec2 rectBottomRight = coord + btnSize;
 
     //stores as variable
-    btnCoords[0] = rectTopLeft;
-    btnCoords[1] = rectTopRight;
-    btnCoords[2] = rectBottomLeft;
-    btnCoords[3] = rectBottomRight;
-    std::cout << rectTopLeft[0] << " " << rectTopLeft[1] << "\n";
-    std::cout << rectTopRight[0] << " " << rectTopRight[1] << "\n";
-    std::cout << rectBottomLeft[0] << " " << rectBottomLeft[1] << "\n";
-    std::cout << rectBottomRight[0] << " " << rectBottomRight[1] << "\n";
+    //btnCoords[0] = rectTopLeft;
+    btnCoords[0] = rectTopRight;
+    btnCoords[1] = rectBottomLeft;
+    //btnCoords[3] = rectBottomRight;
+    //std::cout << rectTopLeft[0] << " " << rectTopLeft[1] << "\n";
+    //std::cout << rectTopRight[0] << " " << rectTopRight[1] << "\n";
+    //std::cout << rectBottomLeft[0] << " " << rectBottomLeft[1] << "\n";
+    //std::cout << rectBottomRight[0] << " " << rectBottomRight[1] << "\n";
+
+    if (gui->mouseCoord[0] > rectBottomLeft[0] && gui->mouseCoord[0] < rectTopRight[0] &&
+        gui->mouseCoord[1] < rectBottomLeft[1] && gui->mouseCoord[1] > rectTopRight[1]) {
+        colour *= 0.7;
+        overBtn = true;
+
+        static bool prevMouseState = false;
+        bool currentMouseState = gui->wasMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+
+        //check for up and down
+        if (currentMouseState && !prevMouseState && onClick) {
+            onClick(); // call callback
+        }
+
+        prevMouseState = currentMouseState;
+    }
+    else {
+        overBtn = false;
+    }
+    gui->renderShape(coord, btnSize, colour, "rectangle");
+    //std::cout << mouseCoord[0] << " " << mouseCoord[1] << "\n";
+    //260 150
+    //610 150
+    //260 225
+    //610 225
 
     coord += txtOffset;
-    // Render the text on top of the button
-    renderText(text, coord, fontScale, fontColour);
+    //render the text on top of the button
+    gui->renderText(text, coord, fontScale, fontColour);
 }

@@ -1,9 +1,6 @@
-#include "../headers/gravityMain.h"
 #include "../headers/mainMenuMain.h"
 
 void mainMenu();
-void gravityWindow();
-void userInterface();
 
 int main() {
     mainMenu();
@@ -13,13 +10,4 @@ int main() {
 void mainMenu(){
     mainMenuClass main_Menu;
     main_Menu.mainMenuCall();
-}
-
-void gravityWindow(){
-    gravityMain gCntr;
-    gCntr.gravitySimMain();
-}
-
-void userInterface(){
-
 }
