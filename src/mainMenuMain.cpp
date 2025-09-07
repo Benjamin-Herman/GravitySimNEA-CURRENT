@@ -108,6 +108,9 @@ void renderOptionsMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* windo
         *_currentState = mainMenuClass::states::main;
         });
 
+
+    slider testSlider(&gui);
+
     glm::vec2 titleOffset = { 120.f, -100.f };
     glm::vec2 btnOffset = { 140.f, -150.f };
     glm::vec2 txt2Offset = { 230.f, 100.f };
@@ -115,6 +118,16 @@ void renderOptionsMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* windo
     //TITLE TEXT
     gui.renderText("OPTIONS MENU", _anchors.topMiddle - titleOffset, 1.0f, glm::vec3{ 1.f }); //text to render
 
+    testSlider.renderSlider(
+        "",
+        _anchors.topMiddle - btnOffset - glm::vec2{ 0.f, -150.f },        // position
+        1.0f,                                  // font scale
+        glm::vec3{ 1.f },                      // font colour
+        glm::vec2{ 350.f, 25.f },              // slider size
+        glm::vec3{ 0.9f, 0.9f, 0.9f },            // slider colour
+        glm::vec2{ 10.f, 50.f },               // text offset
+        20.f
+    );
     //EXIT TEXT
     //gui.renderText("Press ESC to quit", _anchors.bottomMiddle - txt2Offset, 1.0f, glm::vec3{ 1.f });
 

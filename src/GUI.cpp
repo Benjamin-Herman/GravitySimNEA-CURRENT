@@ -6,6 +6,8 @@
 #include <vector>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
+#include <algorithm>
 
 bool overBtn = false;
 
@@ -18,6 +20,16 @@ GUI::GUI(GLFWwindow* win) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+    // create separate VAO/VBO for shapes (rects/circles) so we can upload variable-size fans safely
+    glGenVertexArrays(1, &shapeVAO);
+    glGenBuffers(1, &shapeVBO);
+    glBindVertexArray(shapeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, shapeVBO);
+    // bigger buffer for circles
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 1024 * 4, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
@@ -40,6 +52,10 @@ GUI::GUI(GLFWwindow* win) {
 GUI::~GUI() {
     glDeleteVertexArrays(1, &VAO); //delete all vertex and buffers
     glDeleteBuffers(1, &VBO);
+    // delete shape VAO/VBO
+    glDeleteVertexArrays(1, &shapeVAO);
+    glDeleteBuffers(1, &shapeVBO);
+
     glDeleteTextures(1, &fontTexture);
     if (shader) {
         delete shader; //if called and this exists, delete cuz its the delety thingy
@@ -160,32 +176,75 @@ void GUI::updateSize(GLFWwindow* window) {
     glfwGetCursorPos(window, &mouseCoord[0], &mouseCoord[1]);
 }
 
-void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType) {
-    shapeShader->Use();
-    shapeShader->SetMat4("projection", projection);
-    shapeShader->SetVec3("shapeColor", colour);
+void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType, float radius) {
+    if (shapeType == "rectangle") {
+        shapeShader->Use();
+        shapeShader->SetMat4("projection", projection);
+        shapeShader->SetVec3("shapeColor", colour);
 
-    float x = coord.x;
-    float y = coord.y; //coordinates already in top-left origin
-    float w = size.x;
-    float h = size.y;
+        float x = coord.x;
+        float y = coord.y; //coordinates already in top-left origin
+        float w = size.x;
+        float h = size.y;
 
-    //6 vertices for two triangles, 4 floats per vertex (x,y,u,v) to match VAO layout
-    float vertices[6][4] = {
-        { x,     y,     0.0f, 0.0f },
-        { x + w, y,     0.0f, 0.0f },
-        { x + w, y + h, 0.0f, 0.0f },
+        //6 vertices for two triangles, 4 floats per vertex (x,y,u,v) to match VAO layout
+        float vertices[6][4] = {
+            { x,     y,     0.0f, 0.0f },
+            { x + w, y,     0.0f, 0.0f },
+            { x + w, y + h, 0.0f, 0.0f },
 
-        { x,     y,     0.0f, 0.0f },
-        { x + w, y + h, 0.0f, 0.0f },
-        { x,     y + h, 0.0f, 0.0f }
-    };
+            { x,     y,     0.0f, 0.0f },
+            { x + w, y + h, 0.0f, 0.0f },
+            { x,     y + h, 0.0f, 0.0f }
+        };
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBindVertexArray(shapeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, shapeVBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+    else if (shapeType == "circle") {
+        shapeShader->Use();
+        shapeShader->SetMat4("projection", projection);
+        shapeShader->SetVec3("shapeColor", colour);
+
+        // Circle center and radius
+        float cx = coord.x + size.x * 0.5f;
+        float cy = coord.y + size.y * 0.5f;
+        const float PI = 3.14159265359f; // local definition for circle
+
+        // fallback radius if caller passed 0
+        float r = (radius > 0.0f) ? radius : std::min(size.x, size.y) * 0.5f;
+
+        const int segments = 64; // number of triangles for smoothness
+        std::vector<float> vertices;
+        vertices.reserve((segments + 2) * 4);
+
+        // center vertex
+        vertices.push_back(cx);
+        vertices.push_back(cy);
+        vertices.push_back(0.0f);
+        vertices.push_back(0.0f);
+
+        for (int i = 0; i <= segments; i++) {
+            float angle = i * 2.0f * PI / segments;
+            float px = cx + std::cos(angle) * r;
+            float py = cy + std::sin(angle) * r;
+
+            vertices.push_back(px);
+            vertices.push_back(py);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+        }
+
+        glBindVertexArray(shapeVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, shapeVBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+
+        glDrawArrays(GL_TRIANGLE_FAN, 0, segments + 2);
+    }
+
 
     // Optional: template for other shapes
     /*
@@ -265,14 +324,57 @@ void button::renderButton(const std::string& text, glm::vec2 coord, float fontSc
     gui->renderText(text, coord, fontScale, fontColour);
 }
 
-slider::slider(GUI* gui){
+slider::slider(GUI* g) : gui(g) {}
 
-}
+slider::~slider() {}
 
-slider::~slider(){
+void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius) {
+    //render shape
+    //glm::vec2 rectTopLeft = coord;
+    glm::vec2 rectTopRight = coord + glm::vec2(size.x, 0);
+    glm::vec2 rectBottomLeft = coord + glm::vec2(0, size.y);
+    //glm::vec2 rectBottomRight = coord + btnSize;
 
-}
+    //stores as variable
+    //btnCoords[0] = rectTopLeft;
+    sliderBtnCoords[0] = rectTopRight;
+    sliderBtnCoords[1] = rectBottomLeft;
+    //btnCoords[3] = rectBottomRight;
+    //std::cout << rectTopLeft[0] << " " << rectTopLeft[1] << "\n";
+    //std::cout << rectTopRight[0] << " " << rectTopRight[1] << "\n";
+    //std::cout << rectBottomLeft[0] << " " << rectBottomLeft[1] << "\n";
+    //std::cout << rectBottomRight[0] << " " << rectBottomRight[1] << "\n";
 
-void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 sliderBtnSize, glm::vec3 colour, glm::vec2 txtOffset){
-    gui->renderShape(glm::vec2{ 100, 100 }, glm::vec2{ 100, 50 }, glm::vec3{ 255, 255, 255 }, "rectangle");
+    gui->renderShape(coord, size, colour, "rectangle");
+
+    // Circle center
+    static float buttonX = coord.x; // store the button horizontal position
+    float cy = coord.y + size.y * 0.5f; // vertical center of rectangle
+    float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; // fallback radius if not specified
+
+    // check if mouse is inside the circle
+    float dx = gui->mouseCoord[0] - (buttonX + r);
+    float dy = gui->mouseCoord[1] - cy;
+    if ((dx * dx + dy * dy) <= r * r) { // distance squared < radius squared
+        colour *= 0.7;
+        overBtn = true;
+
+        static bool prevMouseState = false;
+        bool currentMouseState = gui->wasMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+
+        if (currentMouseState) {
+            // move button along the slider track but clamp it
+            buttonX = gui->mouseCoord[0] - r;
+            if (buttonX < coord.x) buttonX = coord.x;
+            if (buttonX > coord.x + size.x - 2 * r) buttonX = coord.x + size.x - 2 * r;
+        }
+
+        prevMouseState = currentMouseState;
+    }
+    else {
+        overBtn = false;
+    }
+
+    // render the circle, horizontally movable but vertically centered
+    gui->renderShape(glm::vec2{ buttonX, cy - r }, glm::vec2{ 2 * r, 2 * r }, colour, "circle", r);
 }

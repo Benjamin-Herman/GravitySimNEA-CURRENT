@@ -16,10 +16,11 @@ public:
 
 
 
+
     bool loadFont(const char* ttf_path, float pixel_height);
     void renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour);
     void updateSize(GLFWwindow* window);
-    void renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType = "rectangle");
+    void renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::string shapeType = "rectangle", float radius = 0.0f);
 
     //checks if over or if pressed
     bool isMouseOver(glm::vec2 pos, glm::vec2 size);
@@ -45,6 +46,9 @@ public:
 private:
     GLuint fontTexture;
     GLuint VAO, VBO;
+    // additional VAO/VBO for shapes (rectangles/circles) to avoid buffer collisions
+    GLuint shapeVAO, shapeVBO;
+
     stbtt_bakedchar cdata[96]; //ASCII character set
     Shader* shader;
     glm::mat4 projection;
@@ -58,7 +62,7 @@ class button {
 public:
     button(GUI* gui);
     ~button();
-    void renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour,glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset = glm::vec2(0, 0));
+    void renderButton(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 btnSize, glm::vec3 colour, glm::vec2 txtOffset = glm::vec2(0, 0));
     void setOnClick(std::function<void()> callback); //sets a function to be called for click
 
     glm::vec2 btnCoords[2]; //btn coords
@@ -74,11 +78,12 @@ class slider {
 public:
     slider(GUI* gui);
     ~slider();
-    void renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 sliderBtnSize, glm::vec3 colour, glm::vec2 txtOffset = glm::vec2(0, 0));
+    void renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius);
 
     glm::vec2 sliderBtnCoords[2]; //sliders btn coords
     GLFWwindow* _window;
 
 private:
+    float position;
     GUI* gui; //pointer to GUI
 };
