@@ -10,19 +10,13 @@
 #include <thread>
 #include <chrono>
 
-enum states {
-    main,
-    optionsMenu,
-    logIn,
-    signUp,
-    accountData
-};
+
 
 void clear(GLFWwindow* window) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window) {
+void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window, mainMenuClass::states* _currentState) {
 
     //create buttons
     button beginBtn(&gui);
@@ -34,11 +28,12 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
         glfwTerminate();
         gCntr.gravitySimMain();
         glfwTerminate();
+        exit(0);
         });
 
     button optionsBtn(&gui);
-    optionsBtn.setOnClick([]() {
-        std::cout << "OPTIONS\n";
+    optionsBtn.setOnClick([_currentState]() {
+        *_currentState = mainMenuClass::states::optionsMenu;
         });
 
     button quitBtn(&gui);
@@ -88,15 +83,81 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
     );
 }
 
+void renderOptionsMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window, mainMenuClass::states* _currentState) {
+    //create buttons
+    /*button beginBtn(&gui);
+    beginBtn.setOnClick([window]() {
+        clear(window);
+        gravityMain gCntr;
 
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        glfwTerminate();
+        gCntr.gravitySimMain();
+        glfwTerminate();
+        exit(0);
+        });
+
+    button optionsBtn(&gui);
+    optionsBtn.setOnClick([_currentState]() {
+        *_currentState = mainMenuClass::states::optionsMenu;
+        std::cout << "OPTIONS\n";
+        });*/
+
+    button backBtn(&gui);
+    backBtn.setOnClick([_currentState]() {  //must capture window. some local scope thing
+        *_currentState = mainMenuClass::states::main;
+        });
+
+    glm::vec2 titleOffset = { 120.f, -100.f };
+    glm::vec2 btnOffset = { 140.f, -150.f };
+    glm::vec2 txt2Offset = { 230.f, 100.f };
+
+    //TITLE TEXT
+    gui.renderText("OPTIONS MENU", _anchors.topMiddle - titleOffset, 1.0f, glm::vec3{ 1.f }); //text to render
+
+    //EXIT TEXT
+    //gui.renderText("Press ESC to quit", _anchors.bottomMiddle - txt2Offset, 1.0f, glm::vec3{ 1.f });
+
+    //BUTTON
+    /*beginBtn.renderButton(
+        "BEGIN",                         // text
+        _anchors.topMiddle - btnOffset,        // position
+        1.0f,                                  // font scale
+        glm::vec3{ 1.f },                      // font colour
+        glm::vec2{ 350.f, 75.f },              // button size
+        glm::vec3{ 1.f, 0.f, 0.f },            // button colour
+        glm::vec2{ 10.f, 50.f }               // text offset
+    );
+
+    optionsBtn.renderButton(
+        "OPTIONS",                         // text
+        _anchors.topMiddle - btnOffset - glm::vec2{ 0.f, -150.f },        // position
+        1.0f,                                  // font scale
+        glm::vec3{ 1.f },                      // font colour
+        glm::vec2{ 350.f, 75.f },              // button size
+        glm::vec3{ 1.f, 0.f, 0.f },            // button colour
+        glm::vec2{ 10.f, 50.f }               // text offset
+    );*/
+
+    backBtn.renderButton(
+        "BACK",                         // text
+        _anchors.topMiddle - btnOffset - glm::vec2{ 0.f, -300.f },        // position
+        1.0f,                                  // font scale
+        glm::vec3{ 1.f },                      // font colour
+        glm::vec2{ 350.f, 75.f },              // button size
+        glm::vec3{ 1.f, 0.f, 0.f },            // button colour
+        glm::vec2{ 10.f, 50.f }               // text offset
+    );
+}
 
 int mainMenuClass::mainMenuCall() {
+    currentState = states::main; //allows for all computation of which ui to display here instead of passing variables everywhere
+
     window_Manager.activateGLFW(); //activate glfw
     GLFWwindow* window = window_Manager.createWindow(800, 600, "MAIN MENU");
     if (!window) {
         return -1;
     }
-
     glEnable(GL_BLEND); //allows to blend over 3d viewport
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -105,7 +166,6 @@ int mainMenuClass::mainMenuCall() {
         std::cout << "Failed to load font\n";
         return -1;
     }
-
     int Cwidth, Cheight; //C stands for current
     glm::vec2 middle;
     glm::vec2 topMiddle;
@@ -122,7 +182,21 @@ int mainMenuClass::mainMenuCall() {
 
         //choose which canvas essentially to draw
         //note that because its a custom gui pipeline, using unity gui terms because thats what im used to - canvas being toggleable window data without new window
-        renderMainMenuFront(gui, _anchors, window);
+        switch (currentState) {
+            case states::main:
+                renderMainMenuFront(gui, _anchors, window, &currentState);
+                break;
+            case states::optionsMenu:
+                renderOptionsMenu(gui, _anchors, window, &currentState);
+                break;
+            case states::null:
+                std::cout << "ERROR State Is Null\n";
+                return -1;
+        }
+        
+
+        
+        
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -6,6 +6,17 @@
 class mainMenuClass {
 public:
 	int mainMenuCall();
+    
+    enum states {
+        main,
+        optionsMenu,
+        logIn,
+        signUp,
+        accountData,
+        null
+    };
+
+    states currentState;
 private:
 	
 };

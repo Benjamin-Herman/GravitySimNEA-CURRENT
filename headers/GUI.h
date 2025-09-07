@@ -11,6 +11,11 @@ class GUI {
 public:
     GUI(GLFWwindow* win); //creates the GUI with whichever window it wants to be in
     ~GUI();
+
+
+
+
+
     bool loadFont(const char* ttf_path, float pixel_height);
     void renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour);
     void updateSize(GLFWwindow* window);
@@ -62,4 +67,18 @@ public:
 private:
     GUI* gui; //pointer to GUI
     std::function<void()> onClick;
+};
+
+
+class slider {
+public:
+    slider(GUI* gui);
+    ~slider();
+    void renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 sliderBtnSize, glm::vec3 colour, glm::vec2 txtOffset = glm::vec2(0, 0));
+
+    glm::vec2 sliderBtnCoords[2]; //sliders btn coords
+    GLFWwindow* _window;
+
+private:
+    GUI* gui; //pointer to GUI
 };

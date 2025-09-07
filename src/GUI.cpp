@@ -264,3 +264,15 @@ void button::renderButton(const std::string& text, glm::vec2 coord, float fontSc
     //render the text on top of the button
     gui->renderText(text, coord, fontScale, fontColour);
 }
+
+slider::slider(GUI* gui){
+
+}
+
+slider::~slider(){
+
+}
+
+void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 sliderBtnSize, glm::vec3 colour, glm::vec2 txtOffset){
+    gui->renderShape(glm::vec2{ 100, 100 }, glm::vec2{ 100, 50 }, glm::vec3{ 255, 255, 255 }, "rectangle");
+}

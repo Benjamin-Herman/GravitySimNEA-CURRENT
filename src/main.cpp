@@ -10,4 +10,5 @@ int main() {
 void mainMenu(){
     mainMenuClass main_Menu;
     main_Menu.mainMenuCall();
+    return;
 }
