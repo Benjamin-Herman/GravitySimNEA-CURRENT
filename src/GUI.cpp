@@ -368,8 +368,13 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
             if (buttonX < coord.x) buttonX = coord.x;
             if (buttonX > coord.x + size.x - 2 * r) buttonX = coord.x + size.x - 2 * r;
         }
-
+        
         prevMouseState = currentMouseState;
+
+
+        //percentage calc
+        percentageAcross = (buttonX - coord.x) / (size.x - 2 * r) * 100;
+        //std::cout << "PERCENTAGE " << percentageAcross << "\n";
     }
     else {
         overBtn = false;

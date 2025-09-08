@@ -84,6 +84,6 @@ public:
     GLFWwindow* _window;
 
 private:
-    float position;
+    float percentageAcross;
     GUI* gui; //pointer to GUI
 };
