@@ -15,7 +15,7 @@ public:
 
 
 
-
+    GLFWwindow* getWindow() const { return _window; }
 
     bool loadFont(const char* ttf_path, float pixel_height);
     void renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour);
@@ -38,6 +38,9 @@ public:
         glm::vec2 middleRight;
         glm::vec2 topRight;
         glm::vec2 bottomRight;
+
+        int screenWidth;
+        int screenHeight;
     };
     anchors _anchors;
 
@@ -76,14 +79,17 @@ private:
 
 class slider {
 public:
-    slider(GUI* gui);
+    slider(GUI* gui, const std::string& sliderId = "");
     ~slider();
     void renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius);
 
     glm::vec2 sliderBtnCoords[2]; //sliders btn coords
-    GLFWwindow* _window;
+    float getPercentage() const { return percentageAcross; }
 
 private:
     float percentageAcross;
     GUI* gui; //pointer to GUI
+    std::string id;
+    float buttonX;
+    bool isDragging;
 };

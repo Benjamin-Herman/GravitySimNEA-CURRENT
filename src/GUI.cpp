@@ -173,6 +173,9 @@ void GUI::updateSize(GLFWwindow* window) {
     _anchors.topMiddle = glm::vec2{ fWidth / 2, 0 };
     _anchors.topRight = glm::vec2{ fWidth, 0 };
 
+    _anchors.screenHeight = height;
+    _anchors.screenWidth = width;
+
     glfwGetCursorPos(window, &mouseCoord[0], &mouseCoord[1]);
 }
 
@@ -324,62 +327,71 @@ void button::renderButton(const std::string& text, glm::vec2 coord, float fontSc
     gui->renderText(text, coord, fontScale, fontColour);
 }
 
-slider::slider(GUI* g) : gui(g) {}
+slider::slider(GUI* g, const std::string& sliderId) : gui(g), id(sliderId), percentageAcross(0.0f), buttonX(0.0f), isDragging(false) {
+    // Removed the _window assignment since it's private in GUI
+}
 
 slider::~slider() {}
 
 void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius) {
-    //render shape
-    //glm::vec2 rectTopLeft = coord;
+    // Initialize buttonX position if not set
+    if (buttonX == 0.0f) {
+        buttonX = coord.x;
+    }
+
     glm::vec2 rectTopRight = coord + glm::vec2(size.x, 0);
     glm::vec2 rectBottomLeft = coord + glm::vec2(0, size.y);
-    //glm::vec2 rectBottomRight = coord + btnSize;
 
     //stores as variable
-    //btnCoords[0] = rectTopLeft;
     sliderBtnCoords[0] = rectTopRight;
     sliderBtnCoords[1] = rectBottomLeft;
-    //btnCoords[3] = rectBottomRight;
-    //std::cout << rectTopLeft[0] << " " << rectTopLeft[1] << "\n";
-    //std::cout << rectTopRight[0] << " " << rectTopRight[1] << "\n";
-    //std::cout << rectBottomLeft[0] << " " << rectBottomLeft[1] << "\n";
-    //std::cout << rectBottomRight[0] << " " << rectBottomRight[1] << "\n";
 
     gui->renderShape(coord, size, colour, "rectangle");
 
     // Circle center
-    static float buttonX = coord.x; // store the button horizontal position
     float cy = coord.y + size.y * 0.5f; // vertical center of rectangle
     float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; // fallback radius if not specified
 
+    // Get mouse coordinates through the GUI's public interface
+    double mouseX, mouseY;
+    glfwGetCursorPos(gui->getWindow(), &mouseX, &mouseY); // Use getWindow() method
+
     // check if mouse is inside the circle
-    float dx = gui->mouseCoord[0] - (buttonX + r);
-    float dy = gui->mouseCoord[1] - cy;
-    if ((dx * dx + dy * dy) <= r * r) { // distance squared < radius squared
-        colour *= 0.7;
-        overBtn = true;
+    float dx = mouseX - (buttonX + r);
+    float dy = mouseY - cy;
+    bool mouseOver = (dx * dx + dy * dy) <= r * r;
 
-        static bool prevMouseState = false;
-        bool currentMouseState = gui->wasMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+    bool currentMouseState = glfwGetMouseButton(gui->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 
+    if (mouseOver && currentMouseState) {
+        isDragging = true;
+    }
+
+    if (isDragging) {
         if (currentMouseState) {
             // move button along the slider track but clamp it
-            buttonX = gui->mouseCoord[0] - r;
+            buttonX = mouseX - r;
             if (buttonX < coord.x) buttonX = coord.x;
             if (buttonX > coord.x + size.x - 2 * r) buttonX = coord.x + size.x - 2 * r;
         }
-        
-        prevMouseState = currentMouseState;
+        else {
+            // mouse button released, stop dragging
+            isDragging = false;
+        }
 
+        colour *= 0.7f;
+    }
+    else if (mouseOver) {
+        colour *= 0.7f;
+    }
 
-        //percentage calc
-        percentageAcross = (buttonX - coord.x) / (size.x - 2 * r) * 100;
-        //std::cout << "PERCENTAGE " << percentageAcross << "\n";
-    }
-    else {
-        overBtn = false;
-    }
+    //percentage calc
+    percentageAcross = (buttonX - coord.x) / (size.x - 2 * r) * 100.0f;
 
     // render the circle, horizontally movable but vertically centered
     gui->renderShape(glm::vec2{ buttonX, cy - r }, glm::vec2{ 2 * r, 2 * r }, colour, "circle", r);
+
+    // Optional: display percentage text
+    // std::string percentText = std::to_string(static_cast<int>(percentageAcross)) + "%";
+    // gui->renderText(percentText, glm::vec2(coord.x + size.x + 10, coord.y), fontScale * 0.8f, fontColour);
 }

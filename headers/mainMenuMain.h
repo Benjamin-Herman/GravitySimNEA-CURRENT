@@ -10,7 +10,8 @@ public:
     enum states {
         main,
         optionsMenu,
-        logIn,
+        loginMenu,
+        saveLoadMenu,
         signUp,
         accountData,
         null
