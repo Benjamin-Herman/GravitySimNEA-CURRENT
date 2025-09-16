@@ -37,8 +37,21 @@ public:
     Camera camera;
     unsigned int starVAO, starVBO;
 
+    void execute();
+
     int gravitySimMain();
+
+    int restart();
+
+    //static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    //bool restartRequested = false;
 private:
+    bool canRestart;
+    GLFWwindow* window; 
+    std::vector<Shader> shaders;
+
+
+
 };
 
 #endif

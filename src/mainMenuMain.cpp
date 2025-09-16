@@ -53,7 +53,7 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
     float buttonScale = 0.8f * scaleFactor;
 
     glm::vec2 titleOffset = glm::vec2(0.0f, -_anchors.screenHeight * 0.15f);
-    glm::vec2 buttonSpacing = glm::vec2(0.0f, _anchors.screenHeight * 0.12f);
+    glm::vec2 buttonSpacing = glm::vec2(_anchors.screenWidth * 0.15, _anchors.screenHeight * 0.12f);
     glm::vec2 buttonSize = glm::vec2(_anchors.screenWidth * 0.4f, _anchors.screenHeight * 0.1f);
     glm::vec2 textOffset = glm::vec2(buttonSize.x * 0.05f, buttonSize.y * 0.4f);
 
@@ -63,7 +63,7 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
     //BUTTONS
     beginBtn.renderButton(
         "BEGIN",
-        _anchors.middleMiddle - buttonSpacing * 2.0f,
+        glm::vec2{ _anchors.middleMiddle.x - buttonSpacing.x, _anchors.middleMiddle.y - buttonSpacing.y * 2.0f },
         buttonScale,
         glm::vec3{ 1.f },
         buttonSize,
@@ -83,7 +83,7 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
 
     loginBtn.renderButton(
         "LOGIN/SIGNUP",
-        _anchors.middleMiddle,
+        glm::vec2{ _anchors.middleMiddle.x - buttonSpacing.x, _anchors.middleMiddle.y },
         buttonScale,
         glm::vec3{ 1.f },
         buttonSize,
@@ -92,8 +92,8 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
     );
 
     saveLoadBtn.renderButton(
-        "LOAD GAME",
-        _anchors.middleMiddle + buttonSpacing * 1.0f,
+        "LOAD SAVES",
+        glm::vec2{ _anchors.middleMiddle.x - buttonSpacing.x, _anchors.middleMiddle.y + buttonSpacing.y * 1.0f },
         buttonScale,
         glm::vec3{ 1.f },
         buttonSize,
@@ -103,7 +103,7 @@ void renderMainMenuFront(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* win
 
     quitBtn.renderButton(
         "QUIT",
-        _anchors.middleMiddle + buttonSpacing * 2.0f,
+        glm::vec2{ _anchors.middleMiddle.x - buttonSpacing.x, _anchors.middleMiddle.y + buttonSpacing.y * 2.0f },
         buttonScale,
         glm::vec3{ 1.f },
         buttonSize,
@@ -177,10 +177,10 @@ void renderOptionsMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* windo
         glm::vec2{ 10.f, 50.f },
         sliderSize.y * 0.8f
     );
-
+    //BACK BTN
     backBtn.renderButton(
         "BACK",
-        _anchors.middleMiddle + sliderSpacing * 2.0f,
+        glm::vec2{ _anchors.middleMiddle.x - buttonSize.x * 0.4f, _anchors.middleMiddle.y + sliderSpacing.y },
         textScale * 1.2f,
         glm::vec3{ 1.f },
         buttonSize,
@@ -215,7 +215,7 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
     glm::vec2 fieldSize = glm::vec2(_anchors.screenWidth * 0.4f, _anchors.screenHeight * 0.06f);
     glm::vec2 buttonSize = glm::vec2(_anchors.screenWidth * 0.4f, _anchors.screenHeight * 0.1f);
     glm::vec2 textOffset = glm::vec2(buttonSize.x * 0.05f, buttonSize.y * 0.4f);
-    glm::vec2 labelOffset = glm::vec2(-_anchors.screenWidth * 0.22f, 0.0f);
+    glm::vec2 labelOffset = glm::vec2(-_anchors.screenWidth * 0.2f, -_anchors.screenWidth * 0.028f);
 
     //TITLE TEXT
     gui.renderText("LOGIN/SIGNUP", _anchors.topMiddle + titleOffset, titleScale, glm::vec3{ 1.f });
@@ -242,7 +242,7 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
 
     signupBtn.renderButton(
         "SIGN UP",
-        _anchors.middleMiddle + fieldSpacing * 1.5f - glm::vec2(buttonSize.x / 2, 0),
+        _anchors.middleMiddle + fieldSpacing * 1.7f - glm::vec2(buttonSize.x / 2, 0),
         textScale * 1.2f,
         glm::vec3{ 1.f },
         buttonSize,
@@ -252,7 +252,7 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
 
     backBtn.renderButton(
         "BACK",
-        _anchors.middleMiddle + fieldSpacing * 2.5f - glm::vec2(buttonSize.x / 2, 0),
+        _anchors.middleMiddle + fieldSpacing * 2.9f - glm::vec2(buttonSize.x / 2, 0),
         textScale * 1.2f,
         glm::vec3{ 1.f },
         buttonSize,

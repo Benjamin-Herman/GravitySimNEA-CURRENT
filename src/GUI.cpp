@@ -10,9 +10,10 @@
 #include <algorithm>
 
 bool overBtn = false;
-
+glm::vec2 sizeRatio = glm::vec2{0, 0};
 GUI::GUI(GLFWwindow* win) {
     //VAO and VBO init
+    normalScreenSize = glm::vec2{ 800, 600 };
     _window = win;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -100,6 +101,7 @@ bool GUI::loadFont(const char* ttf_path, float pixel_height) {
 }
 
 void GUI::renderText(const std::string& text, glm::vec2 coord, float scale, glm::vec3 colour) {
+    scale *= 0.75f;
     float r = colour.x;
     float g = colour.y;
     float b = colour.z; //splits vec3 into 3 floats
@@ -125,8 +127,8 @@ void GUI::renderText(const std::string& text, glm::vec2 coord, float scale, glm:
 
         xpos = x + b->xoff * scale;
         ypos = y + (b->yoff * scale); //invert for top left origin because thats how this works
-        w = b->x1 - b->x0;
-        h = b->y1 - b->y0;
+        w = (b->x1 - b->x0) * scale;
+        h = (b->y1 - b->y0) * scale;
 
         //6 verticies per quad
         vertices[0][0] = xpos;     vertices[0][1] = ypos;     vertices[0][2] = b->x0 / 512.0f; vertices[0][3] = b->y0 / 512.0f;
@@ -146,10 +148,16 @@ void GUI::renderText(const std::string& text, glm::vec2 coord, float scale, glm:
     }
 }
 
+
 void GUI::updateSize(GLFWwindow* window) {
     int height, width; //creates variables for function call next code
 
     glfwGetWindowSize(window, &width, &height);
+
+
+    currentScreenSize = glm::vec2{width, height};
+    sizeRatio = currentScreenSize / normalScreenSize;
+    //std::cout << sizeRatio.x << "   " << sizeRatio.y << "\n";
     screenHeight = height;
     projection = glm::ortho(0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f); //origin
     shader->Use(); //use the stuff
@@ -339,6 +347,7 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
         buttonX = coord.x;
     }
 
+    // rectangle corners (unscaled)
     glm::vec2 rectTopRight = coord + glm::vec2(size.x, 0);
     glm::vec2 rectBottomLeft = coord + glm::vec2(0, size.y);
 
@@ -349,15 +358,18 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
     gui->renderShape(coord, size, colour, "rectangle");
 
     // Circle center
-    float cy = coord.y + size.y * 0.5f; // vertical center of rectangle
-    float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; // fallback radius if not specified
+    float cy = coord.y + size.y * 0.5f; // vertical center
+    float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; // radius stays unscaled vertically
 
-    // Get mouse coordinates through the GUI's public interface
+    // Get mouse coordinates
     double mouseX, mouseY;
-    glfwGetCursorPos(gui->getWindow(), &mouseX, &mouseY); // Use getWindow() method
+    glfwGetCursorPos(gui->getWindow(), &mouseX, &mouseY);
 
-    // check if mouse is inside the circle
-    float dx = mouseX - (buttonX + r);
+    // Convert buttonX to scaled coordinates for rendering and mouse-over check
+    float scaledButtonX = buttonX * sizeRatio.x;
+
+    // check if mouse is inside the circle (mouse in pixels, scaledButtonX in pixels)
+    float dx = mouseX - (scaledButtonX + r);
     float dy = mouseY - cy;
     bool mouseOver = (dx * dx + dy * dy) <= r * r;
 
@@ -369,13 +381,16 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
 
     if (isDragging) {
         if (currentMouseState) {
-            // move button along the slider track but clamp it
-            buttonX = mouseX - r;
-            if (buttonX < coord.x) buttonX = coord.x;
-            if (buttonX > coord.x + size.x - 2 * r) buttonX = coord.x + size.x - 2 * r;
+            // convert mouse x from pixels to unscaled slider coordinates
+            float newButtonX = (mouseX - r) / sizeRatio.x;
+
+            // clamp in unscaled coordinates
+            if (newButtonX < coord.x) newButtonX = coord.x;
+            if (newButtonX > coord.x + size.x - 2 * r) newButtonX = coord.x + size.x - 2 * r;
+
+            buttonX = newButtonX;
         }
         else {
-            // mouse button released, stop dragging
             isDragging = false;
         }
 
@@ -388,8 +403,8 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
     //percentage calc
     percentageAcross = (buttonX - coord.x) / (size.x - 2 * r) * 100.0f;
 
-    // render the circle, horizontally movable but vertically centered
-    gui->renderShape(glm::vec2{ buttonX, cy - r }, glm::vec2{ 2 * r, 2 * r }, colour, "circle", r);
+    // render the circle
+    gui->renderShape(glm::vec2{ scaledButtonX, cy - r }, glm::vec2{ 2 * r, 2 * r }, colour, "circle", r);
 
     // Optional: display percentage text
     // std::string percentText = std::to_string(static_cast<int>(percentageAcross)) + "%";

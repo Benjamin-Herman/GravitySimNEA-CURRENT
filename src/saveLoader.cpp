@@ -127,6 +127,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
     }
     //convert struct data into sim data
     for (OBJ obj : objects) {
+        std::cout << "Loaded objects " << obj.name << "\n";
         Object temp(obj.path);
         temp.setPosition(obj.pos);
         temp.setAcceleration(obj.acc);

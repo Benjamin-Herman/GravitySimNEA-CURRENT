@@ -1,6 +1,7 @@
 #include "../headers/inputManager.h"
 
 
+
 //globals for mouse tracking
 float lastX = screenData::width / 2.0f; //middle of the screen
 float lastY = screenData::height / 2.0f;
@@ -27,14 +28,16 @@ void inputManager::processArrowKeys(GLFWwindow* window, float deltaTime, Camera&
 }
 
 //check ESC and mouse button input
-void inputManager::processInput(GLFWwindow* window) {
+void inputManager::processInput(GLFWwindow* window, gravityMain* gMain) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) { //check escape input
         //glfwSetWindowShouldClose(window, true); //close window
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         firstMouse = true;
         mouseDisabled = true;
     }
-
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        gMain->restart();
+    }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { //if left mouse pressed
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         mouseDisabled = false;

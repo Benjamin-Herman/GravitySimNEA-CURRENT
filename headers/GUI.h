@@ -7,6 +7,11 @@
 #include <glm/glm.hpp>
 #include <functional> // for button callbacks
 
+//GLOBAL RATIO THINGY
+
+extern glm::vec2 sizeRatio;
+
+
 class GUI {
 public:
     GUI(GLFWwindow* win); //creates the GUI with whichever window it wants to be in
@@ -47,6 +52,8 @@ public:
     double mouseCoord[2]; //keep track of mouse
 
 private:
+    glm::vec2 normalScreenSize;
+    glm::vec2 currentScreenSize;
     GLuint fontTexture;
     GLuint VAO, VBO;
     // additional VAO/VBO for shapes (rectangles/circles) to avoid buffer collisions
@@ -82,14 +89,14 @@ public:
     slider(GUI* gui, const std::string& sliderId = "");
     ~slider();
     void renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius);
-
+    float dragOffset;
     glm::vec2 sliderBtnCoords[2]; //sliders btn coords
     float getPercentage() const { return percentageAcross; }
-
 private:
     float percentageAcross;
     GUI* gui; //pointer to GUI
     std::string id;
     float buttonX;
     bool isDragging;
+    
 };

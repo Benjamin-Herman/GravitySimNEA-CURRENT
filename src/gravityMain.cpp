@@ -7,13 +7,44 @@ physicsManager physics_Manager;
 inputManager input_Manager;
 saveLoader saveManager;
 
+void gravityMain::execute(){
+    canRestart = false;
+    std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera); // calls the savemanager to load scene
+    //std::cout << objs.size();
+    int x = 1000;
+    // render loop. TODO move to graphics manager
+    while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
+        float deltaTime = Time::DeltaTime(); // get delta time
+        // process input commands. basically say i call youuu
+        window_Manager.showFPS();
+        input_Manager.processInput(window, this);
+        input_Manager.processArrowKeys(window, deltaTime, camera);
+        camera.ProcessKeyboard(window, deltaTime);
+        //std::cout << "X: " << camera.Position.x << "Y: " << camera.Position.y << "Z: " << camera.Position.z << "\n";
+        physics_Manager.gravitySystemUpdate(objs);
+        graphics_Manager.renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
+        glfwPollEvents();
+        x++;
+        //std::cout << x << "\n";
+        if (x > 2000) {
+            
+            canRestart = true;
+        }
+       
+    }
+
+
+    
+}
+
 int gravityMain::gravitySimMain() {
+    canRestart = false;
     // random seed for the stars
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
     //activate GLFW and create window
     window_Manager.activateGLFW();
-    GLFWwindow* window = window_Manager.createWindow(800, 600);
+    window = window_Manager.createWindow(800, 600);
     windows.push_back(window);
 
     // store this instance for use in the static callback
@@ -30,7 +61,6 @@ int gravityMain::gravitySimMain() {
     glEnable(GL_DEPTH_TEST);
 
     // compile shaders
-    std::vector<Shader> shaders;
     Shader objectShader("shaders/shader.vert", "shaders/shader.frag");
     Shader starShader("shaders/starShader.vert", "shaders/starShader.frag");
     shaders.push_back(objectShader);
@@ -39,32 +69,38 @@ int gravityMain::gravitySimMain() {
     // make starsssss
 
     graphics_Manager.CreateStarfield(starVAO, starVBO, 5000);
+    //-------------------------------------------------
 
-
-    std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera); // calls the savemanager to load scene
-    //std::cout << objs.size();
-
-    // render loop. TODO move to graphics manager
-    while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
-        float deltaTime = Time::DeltaTime(); // get delta time
-        // process input commands. basically say i call youuu
-        window_Manager.showFPS();
-        input_Manager.processInput(window);
-        input_Manager.processArrowKeys(window, deltaTime, camera);
-        camera.ProcessKeyboard(window, deltaTime);
-        //std::cout << "X: " << camera.Position.x << "Y: " << camera.Position.y << "Z: " << camera.Position.z << "\n";
-        physics_Manager.gravitySystemUpdate(objs);
-        graphics_Manager.renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
-        glfwPollEvents();
-    }
-
+    execute();
+    
     // memeory clean becuase cpp sucks
     glDeleteVertexArrays(1, &starVAO);
     glDeleteBuffers(1, &starVBO);
-    glfwTerminate();
-
+    //glfwTerminate();
     return 0;
 }
+
+int gravityMain::restart()
+{
+    if (!canRestart) {
+        return 0;
+    }
+    canRestart = false;
+    // Destroy the old window if it still exists
+    if (window) {
+        glfwDestroyWindow(window);
+        window = nullptr;
+    }
+
+    // You may terminate GLFW if you want a fresh init:
+    // glfwTerminate();
+
+    shaders.clear();                 // clear shader list
+    windows.clear();                 // clear window list
+
+    return gravitySimMain();         // <-- creates a *new* window, context, VAO/VBO, etc.
+}
+
 
 
 void gravityMain::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
