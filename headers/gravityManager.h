@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "object.h"
+#include <iostream>
 #include "simData.h"
 
 class physicsManager {
@@ -11,7 +12,6 @@ public:
         for (auto& obj : objs) {
             obj.setAcceleration(glm::vec3(0.0f));
         }
-
         for (size_t i = 0; i < objs.size(); i++) {
             for (size_t j = i + 1; j < objs.size(); ++j) {
                 glm::vec3 r = objs[j].getPosition() - objs[i].getPosition();

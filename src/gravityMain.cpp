@@ -73,19 +73,19 @@ int gravityMain::gravitySimMain() {
 
 int gravityMain::restart()
 {
-    // Destroy the old window if it still exists
     if (window) {
         glfwDestroyWindow(window);
         window = nullptr;
     }
 
-    // You may terminate GLFW if you want a fresh init:
     glfwTerminate();
 
-    shaders.clear();                 // clear shader list
-    windows.clear();                 // clear window list
+    shaders.clear();             
+    windows.clear();
+    
 
-    return gravitySimMain();         // <-- creates a *new* window, context, VAO/VBO, etc.
+    gravitySimMain(); 
+    return 0;
 }
 
 
@@ -94,7 +94,7 @@ void gravityMain::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     //get class instance from user pointer - basically make sure i call function on the right part of memeory
     auto* self = static_cast<gravityMain*>(glfwGetWindowUserPointer(window));
     if (self) {
-        // call the function elsewhere. needed this for openGL cheats
+        //call the function elsewhere. needed this for openGL cheats
         input_Manager.mouseInput(window, xpos, ypos, self->camera);
     }
 }

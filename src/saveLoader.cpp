@@ -142,6 +142,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
     cam.Yaw = camera.yaw;
     //std::cout << SimObjs.size();
     cam.updateCameraVectors();
+    lines.clear();
     return SimObjs;
 }
 
