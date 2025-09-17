@@ -8,10 +8,8 @@ inputManager input_Manager;
 saveLoader saveManager;
 
 void gravityMain::execute(){
-    canRestart = false;
     std::vector<Object> objs = saveManager.loadSave("saves/test.save", camera); // calls the savemanager to load scene
     //std::cout << objs.size();
-    int x = 1000;
     // render loop. TODO move to graphics manager
     while (!glfwWindowShouldClose(window)/* || !glfwWindowShouldClose(GUIwindow)*/) {
         float deltaTime = Time::DeltaTime(); // get delta time
@@ -24,12 +22,6 @@ void gravityMain::execute(){
         physics_Manager.gravitySystemUpdate(objs);
         graphics_Manager.renderFrame(objs, shaders, deltaTime, camera, starVAO, starVBO, windows);
         glfwPollEvents();
-        x++;
-        //std::cout << x << "\n";
-        if (x > 2000) {
-            
-            canRestart = true;
-        }
        
     }
 
@@ -38,7 +30,6 @@ void gravityMain::execute(){
 }
 
 int gravityMain::gravitySimMain() {
-    canRestart = false;
     // random seed for the stars
     std::srand(static_cast<unsigned>(std::time(nullptr)));
 
@@ -82,10 +73,6 @@ int gravityMain::gravitySimMain() {
 
 int gravityMain::restart()
 {
-    if (!canRestart) {
-        return 0;
-    }
-    canRestart = false;
     // Destroy the old window if it still exists
     if (window) {
         glfwDestroyWindow(window);
@@ -93,7 +80,7 @@ int gravityMain::restart()
     }
 
     // You may terminate GLFW if you want a fresh init:
-    // glfwTerminate();
+    glfwTerminate();
 
     shaders.clear();                 // clear shader list
     windows.clear();                 // clear window list
