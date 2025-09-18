@@ -132,7 +132,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>call "$(ProjectDir)postBuild.bat"</Command>
@@ -184,7 +184,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\vcpkg\installed\x64-windows\include\sqlite3.h" />
     <ClInclude Include="headers\camera.h" />
     <ClInclude Include="headers\cube.h" />
     <ClInclude Include="headers\graphicsManager.h" />

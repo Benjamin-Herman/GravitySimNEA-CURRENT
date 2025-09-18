@@ -1,4 +1,8 @@
 #pragma once
+#ifndef SQLManager_H
+#define SQLManager_H
+
+
 
 class SQL {
 public:
@@ -8,3 +12,5 @@ public:
 private:
 
 };
+
+#endif

@@ -1,6 +1,6 @@
-#include <iostream>
-#include <sqlite3.h>
 #include "../headers/SQLManager.h"
+#include <iostream>
+#include <SQL/sqlite3.h>
 
 int SQL::init()
 {
@@ -33,10 +33,10 @@ void SQL::loop() {
     std::cin >> c;
 
     
-    if (c == "N") {
+    if (c == "N" || c == "n") {
         cont = false;
     }
-    else if (c != "Y") {
+    else if (c != "Y" || c != "y") {
         std::cout << "INVALID\n";
     }
 
