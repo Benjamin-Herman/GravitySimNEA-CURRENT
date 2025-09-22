@@ -2,7 +2,7 @@
 #ifndef SQLManager_H
 #define SQLManager_H
 
-
+#include <iostream>
 
 class SQL {
 public:
@@ -10,6 +10,8 @@ public:
 	void loop();
 	bool cont;
 private:
+
+	std::string hashText(std::string toHash);
 
 };
 
