@@ -3,34 +3,39 @@
 #include <random>
 
 void signup(const std::string& user, const std::string& pass) {
-    sqlite3* DB;
+    sqlite3* DB; //open database
     if (sqlite3_open("databases/users.db", &DB)) {
         std::cerr << "Can't open DB: " << sqlite3_errmsg(DB) << std::endl;
         return;
     }
 
     sqlite3_stmt* stmt;
-    std::string sql = "SELECT 1 FROM users WHERE user = ? LIMIT 1;"; // just check existence
+    std::string sqlCheck = "SELECT 1 FROM users WHERE user = ? LIMIT 1;"; // just check existence
 
-    if (sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+    if (sqlite3_prepare_v2(DB, sqlCheck.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
         sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC);
+        //more stuff I dont understand but it works
+        //documentation says this
 
+        //this checks if the username already exists
         if (sqlite3_step(stmt) == SQLITE_ROW) {
             std::cout << "User exists!\n";
-        }
-        else {
-            std::cout << "User does not exist!\n";
+            sqlite3_finalize(stmt);
+            sqlite3_close(DB);
+            return;
         }
 
         sqlite3_finalize(stmt);
     }
     else {
         std::cerr << "Failed to prepare statement\n";
+        sqlite3_close(DB);
+        return;
     }
 
-
-    if (sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
-        sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC);
+    std::string sqlInsert = "INSERT INTO users (user, pass) VALUES (?, ?);"; // insert new user
+    if (sqlite3_prepare_v2(DB, sqlInsert.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC); //creates the data in tables
         sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_STATIC);
 
         if (sqlite3_step(stmt) == SQLITE_DONE) {
@@ -50,20 +55,22 @@ void signup(const std::string& user, const std::string& pass) {
 
 
 void login(const std::string& user, const std::string& pass) {
-    sqlite3* DB;
+    sqlite3* DB; //open database
     if (sqlite3_open("databases/users.db", &DB)) {
         std::cerr << "Can't open DB: " << sqlite3_errmsg(DB) << std::endl;
         return;
     }
 
+    //initial statement with placeholders
     std::string sql = "SELECT * FROM users WHERE user = ? AND pass = ?;";
     sqlite3_stmt* stmt;
 
     if (sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+        //I literally have no idea how this works, but the SQL CPP documentation says this is how it works. I listen to it
         sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_text(stmt, 2, pass.c_str(), -1, SQLITE_STATIC);
 
-        if (sqlite3_step(stmt) == SQLITE_ROW) {
+        if (sqlite3_step(stmt) == SQLITE_ROW) { //if the hashes statements are equal to each other
             std::cout << "Login successful! Welcome " << user << "\n";
         }
         else {
@@ -82,7 +89,7 @@ void login(const std::string& user, const std::string& pass) {
 int SQL::init()
 {
     cont = true;
-    sqlite3* DB;
+    sqlite3* DB; //creates database
     int exit = sqlite3_open("databases/users.db", &DB);
 
     if (exit) {
@@ -93,6 +100,7 @@ int SQL::init()
         //std::cout << "Opened Database Successfully!" << std::endl;
     }
 
+    //initial database creations SQL code. creates table and user and pass fields
     const char* sql =
         "CREATE TABLE IF NOT EXISTS users ("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -100,7 +108,7 @@ int SQL::init()
         "pass TEXT NOT NULL, "
         "settings_path TEXT NOT NULL DEFAULT '');";
 
-    char* errorMessage = nullptr;
+    char* errorMessage = nullptr; //error message implementation
     exit = sqlite3_exec(DB, sql, nullptr, nullptr, &errorMessage);
 
     if (exit != SQLITE_OK) {
@@ -120,7 +128,7 @@ void SQL::loop() {
 
     //std::cout << hashText("HIII") << "\n";
 
-
+    //currently as just text based solution before GUI implementation, these are just grabbing user text for user and pass
     std::string user;
     std::cout << "ENTER USERNAME\n";
     std::cin >> user;
@@ -135,10 +143,10 @@ void SQL::loop() {
     std::cout << "Do You Want Log In Or Sign Up, L Login, S SignUp\n";
     std::cin >> ls;
 
-    if (ls == "L" || ls == "l") {
+    if (ls == "L" || ls == "l") { //call login
         login(user, pass);
     }
-    else if (ls == "S" || ls == "s") {
+    else if (ls == "S" || ls == "s") { //call signup
         signup(user, pass);
     }
     else {
@@ -149,8 +157,7 @@ void SQL::loop() {
     std::cout << "Do You Want To Go Again, Y yes, N no\n";
     std::cin >> c;
 
-    
-    if (c == "N" || c == "n") {
+    if (c == "N" || c == "n") { //continue
         cont = false;
     }
     else if (c != "Y" && c != "y") {
@@ -179,7 +186,7 @@ std::string SQL::hashText(std::string toHash) {
         std::mt19937 rng(seed); // sets seed to random. no idea what the mt19937 thing is
         std::uniform_int_distribution<int> dist(1, 10000000); // gets random number
         int randomNumber = dist(rng);
-        firstNumSet ^= randomNumber; // use XOR instead of *= so it doesn’t blow up
+        firstNumSet ^= randomNumber; // use XOR instead of *= so it doesnt blow up
         count += (randomNumber % 123023); // sets the count value
     }
 
@@ -194,4 +201,3 @@ std::string SQL::hashText(std::string toHash) {
 
     return hashed;
 }
-
