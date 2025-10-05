@@ -1,6 +1,7 @@
 #include "../headers/mainMenuMain.h"
 #include "../headers/windowManager.h"
 #include "../headers/gravityMain.h"
+#include "../headers/SQLManager.h"
 #include "../headers/GUI.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,6 +9,9 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+
+std::string user;
+std::string pass;
 
 void clear(GLFWwindow* window) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -189,6 +193,64 @@ void renderOptionsMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* windo
     );
 }
 
+
+
+
+
+
+
+
+// Handle textbox input events (mouse + keyboard)
+void handleTextboxInput(GLFWwindow* window, textbox& usernameField, textbox& passwordField) {
+    // Mouse click focus
+    static bool prevMouseState = false;
+    bool currentMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+
+    if (currentMouseState && !prevMouseState) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        auto inside = [&](textbox& tb) {
+            glm::vec2 pos = tb.getPosition();
+            glm::vec2 size = tb.getSize();
+            bool isInside = xpos >= pos.x && xpos <= pos.x + size.x &&
+                ypos >= pos.y && ypos <= pos.y + size.y;
+            return isInside;
+            };
+
+        bool usernameActive = inside(usernameField);
+        bool passwordActive = inside(passwordField);
+
+        usernameField.setActive(usernameActive);
+        passwordField.setActive(passwordActive);
+    }
+    prevMouseState = currentMouseState;
+
+    // Handle backspace separately
+    static bool backspacePrevState = false;
+    bool backspaceCurrentState = glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS;
+    if (backspaceCurrentState && !backspacePrevState) {
+        if (usernameField.isActive()) {
+            usernameField.handleInput(GLFW_KEY_BACKSPACE, GLFW_PRESS);
+        }
+        else if (passwordField.isActive()) {
+            passwordField.handleInput(GLFW_KEY_BACKSPACE, GLFW_PRESS);
+        }
+    }
+    backspacePrevState = backspaceCurrentState;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window, mainMenuClass::states* _currentState) {
     button backBtn(&gui);
     backBtn.setOnClick([_currentState]() {
@@ -197,15 +259,33 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
 
     button loginBtn(&gui);
     loginBtn.setOnClick([]() {
+        //SQL STUFF
+        SQL sql;
+
+        pass = sql.hashText(pass);
+
+        sql.init();
+        sql.login(user, pass);
+        //END OF SQL STUFF
+
         std::cout << "Login attempted\n";
         });
 
     button signupBtn(&gui);
     signupBtn.setOnClick([]() {
-        std::cout << "Signup attempted\n";
+        //SQL STUFF
+        SQL sql;
+
+        pass = sql.hashText(pass);
+
+        sql.init();
+        sql.signup(user, pass);
+        //END OF SQL STUFF
+
+        std::cout << "Login attempted\n";
         });
 
-    //Calculate dynamic scaling
+    //calculate dynamic scaling
     float scaleFactor = std::min(_anchors.screenWidth / 800.0f, _anchors.screenHeight / 600.0f);
     float titleScale = 1.0f * scaleFactor;
     float textScale = 0.7f * scaleFactor;
@@ -217,18 +297,35 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
     glm::vec2 textOffset = glm::vec2(buttonSize.x * 0.05f, buttonSize.y * 0.4f);
     glm::vec2 labelOffset = glm::vec2(-_anchors.screenWidth * 0.2f, -_anchors.screenWidth * 0.028f);
 
+    //calculate actual positions for textboxes
+    glm::vec2 usernamePos = _anchors.middleMiddle - fieldSpacing * 1.5f - glm::vec2(fieldSize.x / 2, fieldSize.y / 2);
+    glm::vec2 passwordPos = _anchors.middleMiddle - fieldSpacing * 0.5f - glm::vec2(fieldSize.x / 2, fieldSize.y / 2);
+
+    //some static important stuff for vairalbes
+    static bool initialized = false;
+    static textbox usernameField(&gui, usernamePos, fieldSize);
+    static textbox passwordField(&gui, passwordPos, fieldSize, true);
+
+    if (!initialized) {
+        //update global pointers
+        activeUsername = &usernameField;
+        activePassword = &passwordField;
+        initialized = true;
+    }
+
+    //handle input events using the separated function
+    handleTextboxInput(window, usernameField, passwordField);
+
     //TITLE TEXT
     gui.renderText("LOGIN/SIGNUP", _anchors.topMiddle + titleOffset, titleScale, glm::vec3{ 1.f });
 
     //USERNAME FIELD
     gui.renderText("Username:", _anchors.middleMiddle - fieldSpacing * 1.5f + labelOffset, textScale, glm::vec3{ 1.f });
-    gui.renderShape(_anchors.middleMiddle - fieldSpacing * 1.5f - glm::vec2(fieldSize.x / 2, fieldSize.y / 2),
-        fieldSize, glm::vec3{ 0.2f, 0.2f, 0.2f }, "rectangle");
+    usernameField.renderTextbox({ 0.2f, 0.2f, 0.2f }, { 1.f, 1.f, 1.f }, textScale);
 
     //PASSWORD FIELD
     gui.renderText("Password:", _anchors.middleMiddle - fieldSpacing * 0.5f + labelOffset, textScale, glm::vec3{ 1.f });
-    gui.renderShape(_anchors.middleMiddle - fieldSpacing * 0.5f - glm::vec2(fieldSize.x / 2, fieldSize.y / 2),
-        fieldSize, glm::vec3{ 0.2f, 0.2f, 0.2f }, "rectangle");
+    passwordField.renderTextbox({ 0.2f, 0.2f, 0.2f }, { 1.f, 1.f, 1.f }, textScale);
 
     loginBtn.renderButton(
         "LOGIN",
@@ -259,6 +356,13 @@ void renderLoginMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window,
         glm::vec3{ 1.f, 0.f, 0.f },
         textOffset
     );
+
+
+    //update text buffers
+
+    user = usernameField.getText();
+    pass = passwordField.getText();
+
 }
 
 void renderSaveLoadMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* window, mainMenuClass::states* _currentState) {
@@ -374,8 +478,10 @@ void renderSaveLoadMenu(GUI& gui, const GUI::anchors& _anchors, GLFWwindow* wind
     );
 }
 
+
+
 int mainMenuClass::mainMenuCall() {
-    currentState = states::main; //allows for all computation of which ui to display here instead of passing variables everywhere
+    currentState = states::main; // Start with testing state for text input
 
     window_Manager.activateGLFW(); //activate glfw
     GLFWwindow* window = window_Manager.createWindow(800, 600, "MAIN MENU");
@@ -386,26 +492,24 @@ int mainMenuClass::mainMenuCall() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     GUI gui(window);
+
+    // Set character callback for text input
+    glfwSetCharCallback(window, charCallback);
+
     if (!gui.loadFont("fonts/font2.ttf", 48.0f)) { //loads font
         std::cout << "Failed to load font\n";
         return -1;
     }
-    int Cwidth, Cheight; //C stands for current
-    glm::vec2 middle;
-    glm::vec2 topMiddle;
 
     GUI::anchors _anchors;
 
     while (!glfwWindowShouldClose(window)) {
-        std::vector<glm::vec2> anchors;
         gui.updateSize(window); //updates size so that everything works with resizing
         _anchors = gui._anchors;
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //clears the backround
         glClear(GL_COLOR_BUFFER_BIT);
-        glfwGetWindowSize(window, &Cwidth, &Cheight);
 
         //choose which canvas essentially to draw
-        //note that because its a custom gui pipeline, using unity gui terms because thats what im used to - canvas being toggleable window data without new window
         switch (currentState) {
         case states::main:
             renderMainMenuFront(gui, _anchors, window, &currentState);

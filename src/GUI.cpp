@@ -10,7 +10,24 @@
 #include <algorithm>
 
 bool overBtn = false;
-glm::vec2 sizeRatio = glm::vec2{0, 0};
+glm::vec2 sizeRatio = glm::vec2{ 0, 0 };
+
+//global pointers for easy access - im a terrible programmer
+textbox* activeUsername = nullptr;
+textbox* activePassword = nullptr;
+
+//char callback to set variables
+void charCallback(GLFWwindow* window, unsigned int codepoint) {
+    if (activeUsername && activeUsername->isActive()) {
+        activeUsername->appendCharacter(static_cast<char>(codepoint));
+    }
+        
+    else if (activePassword && activePassword->isActive()) {
+        activePassword->appendCharacter(static_cast<char>(codepoint));
+    }
+       
+}
+
 GUI::GUI(GLFWwindow* win) {
     //VAO and VBO init
     normalScreenSize = glm::vec2{ 800, 600 };
@@ -24,12 +41,12 @@ GUI::GUI(GLFWwindow* win) {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
-    // create separate VAO/VBO for shapes (rects/circles) so we can upload variable-size fans safely
+    //create indiviail buffers to no issues
     glGenVertexArrays(1, &shapeVAO);
     glGenBuffers(1, &shapeVBO);
     glBindVertexArray(shapeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, shapeVBO);
-    // bigger buffer for circles
+    //bigger buffer for circles cuz they complicated stuff
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 1024 * 4, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -46,7 +63,6 @@ GUI::GUI(GLFWwindow* win) {
     shader->SetMat4("projection", projection);
     shapeShader->Use();
     shapeShader->SetMat4("projection", projection);
-    //glfwSetMouseButtonCallback(_window, mouse_button_callback);
 }
 
 
@@ -155,7 +171,7 @@ void GUI::updateSize(GLFWwindow* window) {
     glfwGetWindowSize(window, &width, &height);
 
 
-    currentScreenSize = glm::vec2{width, height};
+    currentScreenSize = glm::vec2{ width, height };
     sizeRatio = currentScreenSize / normalScreenSize;
     //std::cout << sizeRatio.x << "   " << sizeRatio.y << "\n";
     screenHeight = height;
@@ -220,19 +236,19 @@ void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::st
         shapeShader->SetMat4("projection", projection);
         shapeShader->SetVec3("shapeColor", colour);
 
-        // Circle center and radius
+        //circle center and radius
         float cx = coord.x + size.x * 0.5f;
         float cy = coord.y + size.y * 0.5f;
-        const float PI = 3.14159265359f; // local definition for circle
+        const float PI = 3.14159265359f; //local def for circle
 
-        // fallback radius if caller passed 0
+        //fallback radius if caller passed 0
         float r = (radius > 0.0f) ? radius : std::min(size.x, size.y) * 0.5f;
 
-        const int segments = 64; // number of triangles for smoothness
+        const int segments = 64; //number of triangles for smoothness
         std::vector<float> vertices;
         vertices.reserve((segments + 2) * 4);
 
-        // center vertex
+        //center vertex
         vertices.push_back(cx);
         vertices.push_back(cy);
         vertices.push_back(0.0f);
@@ -255,17 +271,6 @@ void GUI::renderShape(glm::vec2 coord, glm::vec2 size, glm::vec3 colour, std::st
 
         glDrawArrays(GL_TRIANGLE_FAN, 0, segments + 2);
     }
-
-
-    // Optional: template for other shapes
-    /*
-    if(shapeType == "triangle") {
-        // compute triangle vertices in top-left ortho
-    }
-    else if(shapeType == "circle") {
-        // generate circle vertices in top-left ortho
-    }
-    */
 }
 
 bool GUI::isMouseOver(glm::vec2 pos, glm::vec2 size) {
@@ -324,11 +329,6 @@ void button::renderButton(const std::string& text, glm::vec2 coord, float fontSc
         overBtn = false;
     }
     gui->renderShape(coord, btnSize, colour, "rectangle");
-    //std::cout << mouseCoord[0] << " " << mouseCoord[1] << "\n";
-    //260 150
-    //610 150
-    //260 225
-    //610 225
 
     coord += txtOffset;
     //render the text on top of the button
@@ -336,18 +336,18 @@ void button::renderButton(const std::string& text, glm::vec2 coord, float fontSc
 }
 
 slider::slider(GUI* g, const std::string& sliderId) : gui(g), id(sliderId), percentageAcross(0.0f), buttonX(0.0f), isDragging(false) {
-    // Removed the _window assignment since it's private in GUI
+    
 }
 
 slider::~slider() {}
 
 void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontScale, glm::vec3 fontColour, glm::vec2 size, glm::vec3 colour, glm::vec2 txtOffset, float btnRadius) {
-    // Initialize buttonX position if not set
+    //initialize buttonX position if not set
     if (buttonX == 0.0f) {
         buttonX = coord.x;
     }
 
-    // rectangle corners (unscaled)
+    //rectangle corners (unscaled)
     glm::vec2 rectTopRight = coord + glm::vec2(size.x, 0);
     glm::vec2 rectBottomLeft = coord + glm::vec2(0, size.y);
 
@@ -357,18 +357,18 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
 
     gui->renderShape(coord, size, colour, "rectangle");
 
-    // Circle center
-    float cy = coord.y + size.y * 0.5f; // vertical center
-    float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; // radius stays unscaled vertically
+    //circle center
+    float cy = coord.y + size.y * 0.5f; //vertical center
+    float r = (btnRadius > 0.0f) ? btnRadius : size.y * 0.5f; //radius stays unscaled vertically
 
-    // Get mouse coordinates
+    //get mouse coordinates
     double mouseX, mouseY;
     glfwGetCursorPos(gui->getWindow(), &mouseX, &mouseY);
 
-    // Convert buttonX to scaled coordinates for rendering and mouse-over check
+    //convert to scaled pos
     float scaledButtonX = buttonX * sizeRatio.x;
 
-    // check if mouse is inside the circle (mouse in pixels, scaledButtonX in pixels)
+    //check if mouse is inside the circle
     float dx = mouseX - (scaledButtonX + r);
     float dy = mouseY - cy;
     bool mouseOver = (dx * dx + dy * dy) <= r * r;
@@ -381,10 +381,10 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
 
     if (isDragging) {
         if (currentMouseState) {
-            // convert mouse x from pixels to unscaled slider coordinates
+            //convert mouse x from pixels to unscaled slider coords
             float newButtonX = (mouseX - r) / sizeRatio.x;
 
-            // clamp in unscaled coordinates
+            //clamp in unscaled coords
             if (newButtonX < coord.x) newButtonX = coord.x;
             if (newButtonX > coord.x + size.x - 2 * r) newButtonX = coord.x + size.x - 2 * r;
 
@@ -403,10 +403,111 @@ void slider::renderSlider(const std::string& text, glm::vec2 coord, float fontSc
     //percentage calc
     percentageAcross = (buttonX - coord.x) / (size.x - 2 * r) * 100.0f;
 
-    // render the circle
+    //render the circle
     gui->renderShape(glm::vec2{ scaledButtonX, cy - r }, glm::vec2{ 2 * r, 2 * r }, colour, "circle", r);
+}
 
-    // Optional: display percentage text
-    // std::string percentText = std::to_string(static_cast<int>(percentageAcross)) + "%";
-    // gui->renderText(percentText, glm::vec2(coord.x + size.x + 10, coord.y), fontScale * 0.8f, fontColour);
+
+
+textbox::textbox(GUI* g, glm::vec2 pos, glm::vec2 size, bool pass)
+    : gui(g), position(pos), boxSize(size), active(false), password(pass) {
+}
+
+textbox::~textbox() {}
+
+void textbox::renderTextbox(glm::vec3 bgColour, glm::vec3 textColour, float fontScale) {
+    //highlight when active
+    glm::vec3 drawColour = active ? bgColour * 1.3f : bgColour;
+    gui->renderShape(position, boxSize, drawColour, "rectangle");
+
+    std::string displayText = password ? std::string(text.size(), '*') : text;
+
+    if (active) {
+        //suppost to make blinking i think. just a drawn sprite that turns on and off
+        static bool showCursor = true;
+        static double lastTime = glfwGetTime();
+        double currentTime = glfwGetTime();
+        if (currentTime - lastTime > 0.5) {
+            showCursor = !showCursor;
+            lastTime = currentTime;
+        }
+
+        if (showCursor) {
+            displayText += "|";
+        }
+    }
+
+    gui->renderText(displayText, position + (glm::vec2(5.0f, boxSize.y * 0.3f * 2)), fontScale, textColour);
+}
+
+void textbox::handleInput(int key, int action) { //this function is essentially glfw's way of saying screw you for using me. this sucks
+    if (!active || action != GLFW_PRESS) return;
+
+    if (key == GLFW_KEY_BACKSPACE) {
+        if (!text.empty()) text.pop_back();
+        return;
+    }
+
+    bool shift = (glfwGetKey(gui->getWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(gui->getWindow(), GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
+
+    //all the letteres
+    if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
+        char c = (shift ? 'A' : 'a') + (key - GLFW_KEY_A); //oooo i used the fancy query thing here. thats what the ? is
+        text.push_back(c);
+        return;
+    }
+
+    if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) { //all the numbers and is shift being pressed
+        if (shift) {
+            //i dont know why i need this. some useless ascii thing
+            const char shiftedNums[10] = { ')','!','@','#','$','%','^','&','*','(' };
+            text.push_back(shiftedNums[key - GLFW_KEY_0]);
+        }
+        else {
+            char c = '0' + (key - GLFW_KEY_0);
+            text.push_back(c);
+        }
+        return;
+    }
+
+    //spaceeeee
+    if (key == GLFW_KEY_SPACE) {
+        text.push_back(' ');
+        return;
+    }
+
+    //yh i dont even know what this is. the tutorial said i could copy paste and low and behold, a hippity hoppity your code is now my property arose :)
+    switch (key) {
+    case GLFW_KEY_APOSTROPHE: text.push_back(shift ? '\"' : '\''); break;
+    case GLFW_KEY_COMMA:      text.push_back(shift ? '<' : ','); break;
+    case GLFW_KEY_PERIOD:     text.push_back(shift ? '>' : '.'); break;
+    case GLFW_KEY_SLASH:      text.push_back(shift ? '?' : '/'); break;
+    case GLFW_KEY_SEMICOLON:  text.push_back(shift ? ':' : ';'); break;
+    case GLFW_KEY_MINUS:      text.push_back(shift ? '_' : '-'); break;
+    case GLFW_KEY_EQUAL:      text.push_back(shift ? '+' : '='); break;
+    case GLFW_KEY_LEFT_BRACKET:  text.push_back(shift ? '{' : '['); break;
+    case GLFW_KEY_RIGHT_BRACKET: text.push_back(shift ? '}' : ']'); break;
+    case GLFW_KEY_BACKSLASH:     text.push_back(shift ? '|' : '\\'); break;
+    case GLFW_KEY_GRAVE_ACCENT:  text.push_back(shift ? '~' : '`'); break;
+    default: break;
+    }
+}
+
+void textbox::setActive(bool a) {
+    active = a;
+}
+
+void textbox::setPassword(bool p) {
+    password = p;
+}
+
+
+//adds chars
+void textbox::appendCharacter(char c) {
+    if (!active) {
+        return;
+    }
+    if (c == '\r' || c == '\n') return; //ignore enter
+    text.push_back(c); //adds the char
 }

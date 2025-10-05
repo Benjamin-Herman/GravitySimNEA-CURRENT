@@ -14,6 +14,7 @@ public:
         saveLoadMenu,
         signUp,
         accountData,
+        testing,
         null
     };
 

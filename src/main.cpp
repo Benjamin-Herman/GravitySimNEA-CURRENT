@@ -5,8 +5,8 @@ void mainMenu();
 void SQLCall();
 
 int main() {
-    //mainMenu();
-    SQLCall();
+    mainMenu();
+    //SQLCall();
     return 0;
 }
 

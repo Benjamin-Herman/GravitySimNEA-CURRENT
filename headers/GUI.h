@@ -11,14 +11,17 @@
 
 extern glm::vec2 sizeRatio;
 
+// Forward declarations for textbox callbacks
+class textbox;
+extern textbox* activeUsername;
+extern textbox* activePassword;
+void charCallback(GLFWwindow* window, unsigned int codepoint);
+
 
 class GUI {
 public:
     GUI(GLFWwindow* win); //creates the GUI with whichever window it wants to be in
     ~GUI();
-
-
-
 
     GLFWwindow* getWindow() const { return _window; }
 
@@ -56,7 +59,7 @@ private:
     glm::vec2 currentScreenSize;
     GLuint fontTexture;
     GLuint VAO, VBO;
-    // additional VAO/VBO for shapes (rectangles/circles) to avoid buffer collisions
+    // additional VAO/VBO for shapes to avoid buffer hiccups
     GLuint shapeVAO, shapeVBO;
 
     stbtt_bakedchar cdata[96]; //ASCII character set
@@ -98,5 +101,31 @@ private:
     std::string id;
     float buttonX;
     bool isDragging;
-    
+
+};
+
+
+
+
+class textbox {
+public:
+    textbox(GUI* gui, glm::vec2 pos, glm::vec2 size, bool password = false);
+    ~textbox();
+
+    void renderTextbox(glm::vec3 bgColour, glm::vec3 textColour, float fontScale);
+    void handleInput(int key, int action);
+    void appendCharacter(char c); //appends chars to make text to brrrrr
+    void setActive(bool active);
+    bool isActive() const { return active; }
+    void setPassword(bool p);
+    std::string getText() const { return text; }
+    glm::vec2 getPosition() const { return position; }
+    glm::vec2 getSize() const { return boxSize; }
+private:
+    GUI* gui;
+    glm::vec2 position;
+    glm::vec2 boxSize;
+    std::string text;
+    bool active;
+    bool password; //if true text = *
 };

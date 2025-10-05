@@ -2,7 +2,7 @@
 #include <SQL/sqlite3.h>
 #include <random>
 
-void signup(const std::string& user, const std::string& pass) {
+void SQL::signup(const std::string& user, const std::string& pass) {
     sqlite3* DB; //open database
     if (sqlite3_open("databases/users.db", &DB)) {
         std::cerr << "Can't open DB: " << sqlite3_errmsg(DB) << std::endl;
@@ -54,7 +54,7 @@ void signup(const std::string& user, const std::string& pass) {
 }
 
 
-void login(const std::string& user, const std::string& pass) {
+void SQL::login(const std::string& user, const std::string& pass) {
     sqlite3* DB; //open database
     if (sqlite3_open("databases/users.db", &DB)) {
         std::cerr << "Can't open DB: " << sqlite3_errmsg(DB) << std::endl;
