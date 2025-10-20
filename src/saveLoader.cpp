@@ -1,5 +1,5 @@
 #include "../headers/saveLoader.h"
-
+#include "../headers/simData.h"
 
 struct OBJ {
     std::string name;
@@ -16,6 +16,11 @@ struct CAM {
     float yaw;
 };
 
+struct DATA {
+    float G;
+    float SPEED;
+};
+
 saveLoader::saveLoader(){}
 std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& cam) {
     readFile(savePath); //reads file and fills the lines vector with data, no returns needed 
@@ -24,8 +29,11 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
     std::vector<OBJ> objects; //the list of the local struct so I can create the sim obj later
     CAM camera{}; //camera struct
 
+    DATA data;
+
     bool inObjects = false; //inside which part of the file
     bool inCamera = false;
+    bool inData = false;
     OBJ currentObj;
 
     //a list of all the characters that i want to split by
@@ -41,16 +49,25 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
             if (tkn == "OBJECTS") { //major checks for location in file
                 inObjects = true;
                 inCamera = false;
+                inData = false;
                 continue;
             }
             else if (tkn == "CAMERA") {
                 inObjects = false;
                 inCamera = true;
+                inData = false;
                 continue;
             }
             else if (tkn == "UTIL") {
                 inObjects = false;
                 inCamera = false;
+                inData = false;
+                continue;
+            }
+            else if (tkn == "DATA") {
+                inObjects = false;
+                inCamera = false;
+                inData = true;
                 continue;
             }
 
@@ -120,6 +137,14 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
                     camera.yaw = y;
                 }
             }
+            if (inData) {
+                if (tkn == "GRAVCONST") {
+                    data.G = std::stof(tokens[i + 2]);
+                }
+                else if (tkn == "SIMSPEED") {
+                    data.SPEED = std::stof(tokens[i + 2]);
+                }
+            }
 
         }
 
@@ -135,6 +160,11 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
         temp.setMass(obj.mass);
         SimObjs.push_back(temp);
     }
+
+    simData::gravityConstant = data.G;
+    simData::simSpeed = data.SPEED;
+
+    std::cout << data.G << "    " << data.SPEED << "\n";
 
     //update camera start values
     cam.Position = camera.pos;

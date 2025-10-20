@@ -1,10 +1,15 @@
 #pragma once
-#ifndef SIMD_DATA_H
-#define SIMD_DATA_H
-namespace simData{
-	const float gravityConstant = 0.0000000000667f;
-	const float simSpeed = 0.0001f;
+#ifndef SIMDATA_H
+#define SIMDATA_H
+
+struct simData {
+    static float gravityConstant;
+    static float simSpeed;
+
+    static float getG() { return gravityConstant; }
+    static float getSpeed() { return simSpeed; }
+    static void setG(float G) { gravityConstant = G; }
+    static void setSpeed(float speed) { simSpeed = speed; }
 };
 
-#endif 
-
+#endif // SIMDATA_H
