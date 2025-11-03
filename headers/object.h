@@ -27,6 +27,9 @@ public:
     float getRadius() { return radius; }
     void setType(std::string t) { type = t; }
     void setMass(float m) { mass = m; }
+    float getRadius() {
+        return radius;
+    }
 
 protected:
     float mass = 1000000000000.0f;
@@ -39,6 +42,12 @@ protected:
     float rotationAngle;
     unsigned int VAO, VBO, EBO;
     std::string type = "model";
+
+    bool updates = true;
+
+
+    glm::vec3 posMax = { 1000000000, 1000000000, 1000000000 };
+    glm::vec3 posMin = { -1000000000, -1000000000, -1000000000 };
 
     void SetupMesh();
 };

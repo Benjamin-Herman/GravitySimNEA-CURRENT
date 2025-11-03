@@ -69,6 +69,19 @@ void Camera::ProcessKeyboard(GLFWwindow* window, float deltaTime) {
     glm::vec3 dir = (moveDir * velocity);
     //std::cout << dir.x << " " << dir.y << " " << dir.z << "\n";
     Position += dir;
+
+
+    //VALIDATION
+    if ((abs(Position.x) + abs(Position.y) + abs(Position.z)) > posMax.x) {
+        if (Position.x > posMax.x) Position.x = posMax.x;
+        if (Position.y > posMax.y) Position.y = posMax.y;
+        if (Position.z > posMax.z) Position.z = posMax.z;
+
+        if (Position.x < posMin.x) Position.x = posMin.x;
+        if (Position.y < posMin.y) Position.y = posMin.y;
+        if (Position.z < posMin.z) Position.z = posMin.z;
+    }
+
     //std::cout << "CAMERA: " << Position.x << " " << Position.y << " " << Position.z << "\n";
 }
 

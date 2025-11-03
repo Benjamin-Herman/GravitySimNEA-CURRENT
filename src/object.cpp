@@ -89,6 +89,8 @@ bool Object::LoadFromFile(const std::string& filePath) {
         }
     }
     radius = std::sqrt(maxDistSq);
+
+
     //std::cout << radius;
     return true;
 }
@@ -96,6 +98,7 @@ bool Object::LoadFromFile(const std::string& filePath) {
 
 
 void Object::Update(float dt) {
+    if (!updates) return;
     //float dt = Time::DeltaTime();
     bool rot = false;
     if (rot) {
@@ -109,6 +112,18 @@ void Object::Update(float dt) {
     position += velocity * dt * simData::simSpeed;
     velocity += acceleration * dt * simData::simSpeed;
 
+    //as we know 1^2 + 1^2 and then all rooted is root 2. we can divide both by root 2 to evenly decrease it below light speed. 
+    if (velocity.length() >= simData::lightSpeed) {
+        velocity.x = velocity.x / sqrt(2);
+        velocity.y = velocity.y / sqrt(2);
+    }
+
+    //VALIDATION
+    if ((abs(position.x) + abs(position.y) + abs(position.z)) > posMax.x) {
+        if (position.x > posMax.x || position.y > posMax.y || position.z > posMax.z || position.x < posMin.x || position.y < posMin.y || position.z < posMin.z) {
+            updates = false;
+        }
+    }
 
 }
 

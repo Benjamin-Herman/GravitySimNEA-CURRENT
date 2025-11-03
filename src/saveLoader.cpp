@@ -19,6 +19,7 @@ struct CAM {
 struct DATA {
     float G;
     float SPEED;
+    float lightSpeed;
 };
 
 saveLoader::saveLoader(){}
@@ -29,7 +30,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
     std::vector<OBJ> objects; //the list of the local struct so I can create the sim obj later
     CAM camera{}; //camera struct
 
-    DATA data;
+    DATA data{};
 
     bool inObjects = false; //inside which part of the file
     bool inCamera = false;
@@ -144,16 +145,31 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
                 else if (tkn == "SIMSPEED") {
                     data.SPEED = std::stof(tokens[i + 2]);
                 }
+                else if (tkn == "LIGHTSPEED") {
+                    data.lightSpeed = std::stof(tokens[i + 2]);
+                }
             }
 
         }
 
 
     }
+    simData::gravityConstant = data.G;
+    simData::simSpeed = data.SPEED;
+    simData::lightSpeed = data.lightSpeed;
+
     //convert struct data into sim data
     for (OBJ obj : objects) {
+        
+        
+
+
         std::cout << "Loaded objects " << obj.name << "\n";
         Object temp(obj.path);
+
+        float sRadius = (2 * data.G * obj.mass) / (data.lightSpeed * data.lightSpeed);
+        if (temp.getRadius() < sRadius) { std::cerr << "TOO SMALL"; }
+
         temp.setPosition(obj.pos);
         temp.setAcceleration(obj.acc);
         temp.setVelocity(obj.vel);
@@ -161,8 +177,7 @@ std::vector<Object> saveLoader::loadSave(const std::string& savePath, Camera& ca
         SimObjs.push_back(temp);
     }
 
-    simData::gravityConstant = data.G;
-    simData::simSpeed = data.SPEED;
+
 
     std::cout << data.G << "    " << data.SPEED << "\n";
 

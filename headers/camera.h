@@ -25,6 +25,9 @@ public:
     glm::vec3 Right;
     glm::vec3 WorldUp;
 
+    glm::vec3 posMax = {1000000000, 1000000000, 1000000000};
+    glm::vec3 posMin = { -1000000000, -1000000000, -1000000000 };
+
     // Camera options
     float MovementSpeed;
     float MouseSensitivity;
